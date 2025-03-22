@@ -8,5 +8,5 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.show();
     return a.exec();
-    // haha funny test comment
+    // haha funny test comment asd
 }
