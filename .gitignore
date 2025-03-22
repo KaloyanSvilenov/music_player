@@ -1,0 +1,51 @@
+# Ignore Qt Creator user-specific files
+*.user
+*.user.*
+CMakeLists.txt.user
+
+# Ignore build directories
+build/
+*/build/
+out/
+*/out/
+bin/
+*/bin/
+
+# Compiled object files
+*.o
+*.obj
+
+# Precompiled headers
+*.gch
+*.pch
+
+# Compiled dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Executables
+*.exe
+
+# CMake files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# qmake files
+Makefile*
+*.pro.user*
+*.qmake.stash
+
+# Debug files
+*.debug
+*.ilk
+*.pdb
+
+# Dependency files
+*.d
+
+# Backup files
+*~
+*.bak
