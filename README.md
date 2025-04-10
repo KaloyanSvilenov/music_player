@@ -6,6 +6,6 @@ To build the project install the qt creator from the link below with the version
 > 
 > qt library - 6.9.0
 
-# Documentation
-Maybe usefull documentation for [media managment](https://www.qt.io/product/qt6/qml-book/ch11-multimedia-multimedia)
+# Usefull
+Documentation for [media managment](https://www.qt.io/product/qt6/qml-book/ch11-multimedia-multimedia)
 
