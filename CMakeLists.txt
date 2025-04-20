@@ -11,6 +11,7 @@ qt_add_executable(music_player
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
+    treewidgetwindow.h treewidgetwindow.cpp
 )
 
 target_link_libraries(music_player

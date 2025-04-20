@@ -1,6 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "treewidgetwindow.h"
+
 #include <QMainWindow>
 #include <QResizeEvent>
 
@@ -18,6 +20,7 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    TreeWidgetWindow *m_treeWindowManager;
 };
 
 #endif // MAINWINDOW_H

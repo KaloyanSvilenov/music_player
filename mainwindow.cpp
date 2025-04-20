@@ -20,6 +20,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->tableWidget->setColumnWidth(6, 120);
 
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+
+    m_treeWindowManager = new TreeWidgetWindow(ui->fileTree, this);
 }
 
 MainWindow::~MainWindow()
