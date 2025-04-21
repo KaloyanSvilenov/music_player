@@ -22,6 +22,16 @@ MainWindow::MainWindow(QWidget *parent)
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 
     m_treeWindowManager = new TreeWidgetWindow(ui->fileTree, this);
+
+    m_queueManager = new AudioQueueManager(ui->tableWidget, this);
+    m_queueManager->setupConnections();
+
+    connect(ui->fileTree, &QTreeWidget::itemDoubleClicked, [this](QTreeWidgetItem *item) {
+        QString filePath = item->data(0, Qt::UserRole).toString();
+        if (filePath.endsWith(".mp3") || filePath.endsWith(".wav")) {
+            m_queueManager->addToQueue(filePath);
+        }
+    });
 }
 
 MainWindow::~MainWindow()

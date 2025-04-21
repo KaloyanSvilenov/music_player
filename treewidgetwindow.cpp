@@ -3,6 +3,9 @@
 #include <QMenu>
 #include <QDir>
 #include <QStyle>
+#include <qevent.h>
+#include <QDrag>
+#include <QMimeData>
 
 TreeWidgetWindow::TreeWidgetWindow(QTreeWidget *treeWidget, QObject *parent)
     : QObject(parent), m_treeWidget(treeWidget)
@@ -12,6 +15,10 @@ TreeWidgetWindow::TreeWidgetWindow(QTreeWidget *treeWidget, QObject *parent)
     m_treeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(m_treeWidget, &QTreeWidget::customContextMenuRequested,
             this, &TreeWidgetWindow::onCustomContextMenuRequested);
+
+    m_treeWidget->setDragEnabled(true);
+    m_treeWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_treeWidget->setDragDropMode(QAbstractItemView::DragOnly);
 }
 
 void TreeWidgetWindow::clearAllDirectories()
@@ -78,4 +85,19 @@ void TreeWidgetWindow::addAudioFilesToTree(QTreeWidgetItem *parent, const QStrin
         fileItem->setData(0, Qt::UserRole, fileInfo.absoluteFilePath());
         fileItem->setIcon(0, m_treeWidget->style()->standardIcon(QStyle::SP_FileIcon));
     }
+}
+
+void TreeWidgetWindow::mouseMoveEvent(QMouseEvent *event)
+{
+    if (event->buttons() & Qt::LeftButton) {
+        QTreeWidgetItem *item = currentItem();
+        if (item) {
+            QDrag *drag = new QDrag(this);
+            QMimeData *mime = new QMimeData;
+            mime->setText(item->data(0, Qt::UserRole).toString());
+            drag->setMimeData(mime);
+            drag->exec(Qt::CopyAction);
+        }
+    }
+    QTreeWidget::mouseMoveEvent(event);
 }

@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include "treewidgetwindow.h"
+#include "audioqueuetable.h"
 
 #include <QMainWindow>
 #include <QResizeEvent>
@@ -21,6 +22,8 @@ public:
 private:
     Ui::MainWindow *ui;
     TreeWidgetWindow *m_treeWindowManager;
+
+    AudioQueueManager *m_queueManager;
 };
 
 #endif // MAINWINDOW_H
