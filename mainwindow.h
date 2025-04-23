@@ -22,8 +22,7 @@ public:
 private:
     Ui::MainWindow *ui;
     TreeWidgetWindow *m_treeWindowManager;
-
-    AudioQueueManager *m_queueManager;
+    AudioQueueTable *m_queueTable;
 };
 
 #endif // MAINWINDOW_H

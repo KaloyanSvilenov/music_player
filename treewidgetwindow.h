@@ -11,7 +11,10 @@ class TreeWidgetWindow : public QObject
 public:
     explicit TreeWidgetWindow(QTreeWidget *treeWidget, QObject *parent = nullptr);
 
-    const QStringList audioExtensions = {"*.mp3", "*.wav", "*.ogg", "*.flac", "*.aiff", "*.m4a"};
+    const QStringList audioExtensions = {"*.mp3", "*.wav", "*.flac"};
+
+signals:
+    void fileAddRequested(const QString &filePath);
 
 public slots:
     void onCustomContextMenuRequested(const QPoint &pos);
@@ -20,6 +23,7 @@ public slots:
 
 private:
     QTreeWidget *m_treeWidget;
+    QPoint m_dragStartPosition;
 
     void addAudioFilesToTree(QTreeWidgetItem *parent, const QString &dirPath);
     void clearAllDirectories();

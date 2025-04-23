@@ -40,13 +40,15 @@ AudioMetadata AudioMetadataReader::readMetadata(const QString &filePath)
         meta.title = QFileInfo(filePath).completeBaseName();
     }
 
-    // Get other metadata
+    // Get artist
     meta.artist = metadata.value(QMediaMetaData::AlbumArtist).toString();
     if (meta.artist.isEmpty()) meta.artist = "Unknown Artist";
 
+    // Get album
     meta.album = metadata.value(QMediaMetaData::AlbumTitle).toString();
     if (meta.album.isEmpty()) meta.album = "Unknown Album";
 
+    // Get genre
     meta.genre = metadata.value(QMediaMetaData::Genre).toString();
     if (meta.genre.isEmpty()) meta.genre = "Unknown Genre";
 

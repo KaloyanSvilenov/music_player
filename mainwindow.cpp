@@ -9,29 +9,12 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    ui->tableWidget->resize(800, ui->tableWidget->width());
-
-    ui->tableWidget->setColumnWidth(0, 30);
-    ui->tableWidget->setColumnWidth(1, 150);
-    ui->tableWidget->setColumnWidth(2, 200);
-    ui->tableWidget->setColumnWidth(3, 150);
-    ui->tableWidget->setColumnWidth(4, 70);
-    ui->tableWidget->setColumnWidth(5, 80);
-    ui->tableWidget->setColumnWidth(6, 120);
-
-    ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+    m_queueTable = new AudioQueueTable(ui->tableWidget, this);
+    m_queueTable->onCustomContextMenuRequested();
 
     m_treeWindowManager = new TreeWidgetWindow(ui->fileTree, this);
-
-    m_queueManager = new AudioQueueManager(ui->tableWidget, this);
-    m_queueManager->setupConnections();
-
-    connect(ui->fileTree, &QTreeWidget::itemDoubleClicked, [this](QTreeWidgetItem *item) {
-        QString filePath = item->data(0, Qt::UserRole).toString();
-        if (filePath.endsWith(".mp3") || filePath.endsWith(".wav")) {
-            m_queueManager->addToQueue(filePath);
-        }
-    });
+    connect(m_treeWindowManager, &TreeWidgetWindow::fileAddRequested,
+            m_queueTable, &AudioQueueTable::enqueue);
 }
 
 MainWindow::~MainWindow()

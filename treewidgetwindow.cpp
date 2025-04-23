@@ -6,6 +6,7 @@
 #include <qevent.h>
 #include <QDrag>
 #include <QMimeData>
+#include <QApplication>
 
 TreeWidgetWindow::TreeWidgetWindow(QTreeWidget *treeWidget, QObject *parent)
     : QObject(parent), m_treeWidget(treeWidget)
@@ -16,23 +17,49 @@ TreeWidgetWindow::TreeWidgetWindow(QTreeWidget *treeWidget, QObject *parent)
     connect(m_treeWidget, &QTreeWidget::customContextMenuRequested,
             this, &TreeWidgetWindow::onCustomContextMenuRequested);
 
-    m_treeWidget->setDragEnabled(true);
     m_treeWidget->setSelectionMode(QAbstractItemView::SingleSelection);
-    m_treeWidget->setDragDropMode(QAbstractItemView::DragOnly);
 }
 
 void TreeWidgetWindow::clearAllDirectories()
 {
-    m_treeWidget->clear();  // Remove all items from the tree
+    m_treeWidget->clear();
 }
 
 void TreeWidgetWindow::onCustomContextMenuRequested(const QPoint &pos)
 {
-    QMenu contextMenu;
+    QMenu contextMenu(m_treeWidget->viewport());
+
+    QTreeWidgetItem *clickedItem = m_treeWidget->itemAt(pos);
+    QAction *addToQueueAction = contextMenu.addAction("Add to queue");
     QAction *addDirAction = contextMenu.addAction("Add Directory...");
-    connect(addDirAction, &QAction::triggered, [this, pos]() {
-        addDirectoryToTree(pos);
-    });
+
+    if (clickedItem) {
+        QString filePath = clickedItem->data(0, Qt::UserRole).toString();
+        bool isAudioFile = filePath.endsWith(".mp3") || filePath.endsWith(".wav") || filePath.endsWith(".flac");
+
+        // Enable/disable actions based on item type
+        addToQueueAction->setEnabled(isAudioFile);
+        addDirAction->setEnabled(!isAudioFile);
+
+        // Connect actions conditionally
+        if (isAudioFile) {
+            connect(addToQueueAction, &QAction::triggered, [this, filePath]() {
+                emit fileAddRequested(filePath);
+            });
+        } else {
+            connect(addDirAction, &QAction::triggered, this, [this, pos]() {
+                addDirectoryToTree(pos);
+            });
+        }
+    } else {
+        // No item clicked - disable both actions
+        addToQueueAction->setEnabled(false);
+        addDirAction->setEnabled(true);
+        connect(addDirAction, &QAction::triggered, this, [this, pos]() {
+            addDirectoryToTree(pos);
+        });
+    }
+
     contextMenu.exec(m_treeWidget->viewport()->mapToGlobal(pos));
 }
 
@@ -49,7 +76,6 @@ void TreeWidgetWindow::addDirectoryToTree(const QPoint &pos)
         );
 
     if (!dir.isEmpty()) {
-        // Clear all existing directories before adding new one
         clearAllDirectories();
 
         QTreeWidgetItem *newItem = new QTreeWidgetItem(m_treeWidget);
@@ -64,8 +90,9 @@ void TreeWidgetWindow::addDirectoryToTree(const QPoint &pos)
 void TreeWidgetWindow::scanDirectory(QTreeWidgetItem *parentItem, const QString &path)
 {
     QDir dir(path);
-    QFileInfoList dirs = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
-    for (const QFileInfo &dirInfo : dirs) {
+    const QFileInfoList dirs = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+
+    for (const QFileInfo &dirInfo : std::as_const(dirs)) {
         QTreeWidgetItem *dirItem = new QTreeWidgetItem(parentItem);
         dirItem->setText(0, dirInfo.fileName());
         dirItem->setData(0, Qt::UserRole, dirInfo.absoluteFilePath());
@@ -75,29 +102,16 @@ void TreeWidgetWindow::scanDirectory(QTreeWidgetItem *parentItem, const QString 
     addAudioFilesToTree(parentItem, path);
 }
 
+
 void TreeWidgetWindow::addAudioFilesToTree(QTreeWidgetItem *parent, const QString &dirPath)
 {
     QDir dir(dirPath);
-    QFileInfoList files = dir.entryInfoList(audioExtensions, QDir::Files);
-    for (const QFileInfo &fileInfo : files) {
+    const QFileInfoList files = dir.entryInfoList(audioExtensions, QDir::Files);
+
+    for (const QFileInfo &fileInfo : std::as_const(files)) {
         QTreeWidgetItem *fileItem = new QTreeWidgetItem(parent);
         fileItem->setText(0, fileInfo.fileName());
         fileItem->setData(0, Qt::UserRole, fileInfo.absoluteFilePath());
         fileItem->setIcon(0, m_treeWidget->style()->standardIcon(QStyle::SP_FileIcon));
     }
-}
-
-void TreeWidgetWindow::mouseMoveEvent(QMouseEvent *event)
-{
-    if (event->buttons() & Qt::LeftButton) {
-        QTreeWidgetItem *item = currentItem();
-        if (item) {
-            QDrag *drag = new QDrag(this);
-            QMimeData *mime = new QMimeData;
-            mime->setText(item->data(0, Qt::UserRole).toString());
-            drag->setMimeData(mime);
-            drag->exec(Qt::CopyAction);
-        }
-    }
-    QTreeWidget::mouseMoveEvent(event);
 }
