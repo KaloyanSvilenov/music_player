@@ -95,13 +95,13 @@ void TreeWidgetWindow::addDirectoryToTree(const QPoint &pos)
     }
 }
 
-void TreeWidgetWindow::scanDirectory(QTreeWidgetItem *parentItem, const QString &path)
+void TreeWidgetWindow::scanDirectory(QTreeWidgetItem* parentItem, const QString& path)
 {
     QDir dir(path);
     const QFileInfoList dirs = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
 
-    for (const QFileInfo &dirInfo : std::as_const(dirs)) {
-        QTreeWidgetItem *dirItem = new QTreeWidgetItem(parentItem);
+    for (const QFileInfo& dirInfo : dirs) {
+        QTreeWidgetItem* dirItem = new QTreeWidgetItem(parentItem);
         dirItem->setText(0, dirInfo.fileName());
         dirItem->setData(0, Qt::UserRole, dirInfo.absoluteFilePath());
         dirItem->setIcon(0, m_treeWidget->style()->standardIcon(QStyle::SP_DirIcon));
@@ -109,7 +109,6 @@ void TreeWidgetWindow::scanDirectory(QTreeWidgetItem *parentItem, const QString 
     }
     addAudioFilesToTree(parentItem, path);
 }
-
 
 void TreeWidgetWindow::addAudioFilesToTree(QTreeWidgetItem *parent, const QString &dirPath)
 {
@@ -143,38 +142,53 @@ QString TreeWidgetWindow::getConfigPath() const
 void TreeWidgetWindow::saveState()
 {
     QString configPath = getConfigPath();
-
-    // Ensure the directory exists (especially important for AppData location)
     QFileInfo configFile(configPath);
     QDir().mkpath(configFile.absolutePath());
 
     QSettings settings(configPath, QSettings::IniFormat);
     settings.setValue("lastOpenedDir", m_lastOpenedDir);
+
+    // Save expanded state
+    QStringList expandedPaths;
+    QTreeWidgetItemIterator it(m_treeWidget);
+    while (*it) {
+        if ((*it)->isExpanded() && !(*it)->data(0, Qt::UserRole).toString().isEmpty()) {
+            expandedPaths << (*it)->data(0, Qt::UserRole).toString();
+        }
+        ++it;
+    }
+    settings.setValue("expandedPaths", expandedPaths);
 }
 
 void TreeWidgetWindow::restoreState()
 {
     QString configPath = getConfigPath();
+    if (!QFile::exists(configPath)) return;
 
-    // Check if config file exists before trying to read it
-    if (QFile::exists(configPath)) {
-        QSettings settings(configPath, QSettings::IniFormat);
-        m_lastOpenedDir = settings.value("lastOpenedDir", QDir::homePath()).toString();
+    QSettings settings(configPath, QSettings::IniFormat);
+    m_lastOpenedDir = settings.value("lastOpenedDir", QDir::homePath()).toString();
 
-        // Check if directory still exists
-        if (!m_lastOpenedDir.isEmpty() && QDir(m_lastOpenedDir).exists()) {
-            clearAllDirectories();
+    if (!m_lastOpenedDir.isEmpty() && QDir(m_lastOpenedDir).exists()) {
+        clearAllDirectories();
 
-            QTreeWidgetItem *newItem = new QTreeWidgetItem(m_treeWidget);
-            newItem->setText(0, QDir(m_lastOpenedDir).dirName());
-            newItem->setData(0, Qt::UserRole, m_lastOpenedDir);
-            newItem->setIcon(0, m_treeWidget->style()->standardIcon(QStyle::SP_DirIcon));
+        QTreeWidgetItem* newItem = new QTreeWidgetItem(m_treeWidget);
+        newItem->setText(0, QDir(m_lastOpenedDir).dirName());
+        newItem->setData(0, Qt::UserRole, m_lastOpenedDir);
+        newItem->setIcon(0, m_treeWidget->style()->standardIcon(QStyle::SP_DirIcon));
 
-            scanDirectory(newItem, m_lastOpenedDir);
-            emit directoryAdded();
-        } else {
-            // Reset to home if directory doesn't exist
-            m_lastOpenedDir = QDir::homePath();
+        scanDirectory(newItem, m_lastOpenedDir);
+
+        // Restore expanded state after directory is loaded
+        QStringList expandedPaths = settings.value("expandedPaths").toStringList();
+        QTreeWidgetItemIterator it(m_treeWidget);
+        while (*it) {
+            QString itemPath = (*it)->data(0, Qt::UserRole).toString();
+            if (expandedPaths.contains(itemPath)) {
+                (*it)->setExpanded(true);
+            }
+            ++it;
         }
+
+        emit directoryAdded();
     }
 }

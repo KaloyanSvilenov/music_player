@@ -16,6 +16,8 @@ public:
 
     void saveState();
     void restoreState();
+    void saveExpandedState(QTreeWidgetItem* item);
+    void restoreExpandedState(QTreeWidgetItem* item);
 
 signals:
     void fileAddRequested(const QString &filePath);
@@ -30,10 +32,12 @@ private:
     QTreeWidget *m_treeWidget;
     QPoint m_dragStartPosition;
     QString m_lastOpenedDir;
+    QString getConfigPath() const;
+    QSet<QString> m_expandedPaths;
 
     void addAudioFilesToTree(QTreeWidgetItem *parent, const QString &dirPath);
     void clearAllDirectories();
-    QString getConfigPath() const;
+
 };
 
 #endif // TREEWIDGETWINDOW_H
