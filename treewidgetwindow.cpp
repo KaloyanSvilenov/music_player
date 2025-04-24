@@ -7,9 +7,12 @@
 #include <QDrag>
 #include <QMimeData>
 #include <QApplication>
+#include <QSettings>
+#include <QDebug>
+#include <QStandardPaths>
 
 TreeWidgetWindow::TreeWidgetWindow(QTreeWidget *treeWidget, QObject *parent)
-    : QObject(parent), m_treeWidget(treeWidget)
+    : QObject(parent), m_treeWidget(treeWidget), m_lastOpenedDir(QDir::homePath())
 {
     m_treeWidget->setHeaderLabel("Audio Browser");
     m_treeWidget->setColumnCount(1);
@@ -18,6 +21,9 @@ TreeWidgetWindow::TreeWidgetWindow(QTreeWidget *treeWidget, QObject *parent)
             this, &TreeWidgetWindow::onCustomContextMenuRequested);
 
     m_treeWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+
+    // Restore state immediately after construction
+    restoreState();
 }
 
 void TreeWidgetWindow::clearAllDirectories()
@@ -66,7 +72,7 @@ void TreeWidgetWindow::onCustomContextMenuRequested(const QPoint &pos)
 void TreeWidgetWindow::addDirectoryToTree(const QPoint &pos)
 {
     QTreeWidgetItem *clickedItem = m_treeWidget->itemAt(pos);
-    QString startDir = clickedItem ? clickedItem->data(0, Qt::UserRole).toString() : QDir::homePath();
+    QString startDir = clickedItem ? clickedItem->data(0, Qt::UserRole).toString() : m_lastOpenedDir;
 
     QString dir = QFileDialog::getExistingDirectory(
         m_treeWidget,
@@ -76,6 +82,7 @@ void TreeWidgetWindow::addDirectoryToTree(const QPoint &pos)
         );
 
     if (!dir.isEmpty()) {
+        m_lastOpenedDir = dir; // Store the last opened directory
         clearAllDirectories();
 
         QTreeWidgetItem *newItem = new QTreeWidgetItem(m_treeWidget);
@@ -84,6 +91,7 @@ void TreeWidgetWindow::addDirectoryToTree(const QPoint &pos)
         newItem->setIcon(0, m_treeWidget->style()->standardIcon(QStyle::SP_DirIcon));
 
         scanDirectory(newItem, dir);
+        emit directoryAdded();
     }
 }
 
@@ -113,5 +121,60 @@ void TreeWidgetWindow::addAudioFilesToTree(QTreeWidgetItem *parent, const QStrin
         fileItem->setText(0, fileInfo.fileName());
         fileItem->setData(0, Qt::UserRole, fileInfo.absoluteFilePath());
         fileItem->setIcon(0, m_treeWidget->style()->standardIcon(QStyle::SP_FileIcon));
+    }
+}
+
+QString TreeWidgetWindow::getConfigPath() const
+{
+    // First try application directory
+    QString appDirPath = QCoreApplication::applicationDirPath();
+    QFileInfo appDir(appDirPath);
+
+    // Check if we can write to application directory
+    if (appDir.isWritable()) {
+        return appDirPath + "/config.ini";
+    }
+
+    // Fall back to AppData location if application directory isn't writable
+    return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
+           + "/" + QCoreApplication::applicationName() + "/config.ini";
+}
+
+void TreeWidgetWindow::saveState()
+{
+    QString configPath = getConfigPath();
+
+    // Ensure the directory exists (especially important for AppData location)
+    QFileInfo configFile(configPath);
+    QDir().mkpath(configFile.absolutePath());
+
+    QSettings settings(configPath, QSettings::IniFormat);
+    settings.setValue("lastOpenedDir", m_lastOpenedDir);
+}
+
+void TreeWidgetWindow::restoreState()
+{
+    QString configPath = getConfigPath();
+
+    // Check if config file exists before trying to read it
+    if (QFile::exists(configPath)) {
+        QSettings settings(configPath, QSettings::IniFormat);
+        m_lastOpenedDir = settings.value("lastOpenedDir", QDir::homePath()).toString();
+
+        // Check if directory still exists
+        if (!m_lastOpenedDir.isEmpty() && QDir(m_lastOpenedDir).exists()) {
+            clearAllDirectories();
+
+            QTreeWidgetItem *newItem = new QTreeWidgetItem(m_treeWidget);
+            newItem->setText(0, QDir(m_lastOpenedDir).dirName());
+            newItem->setData(0, Qt::UserRole, m_lastOpenedDir);
+            newItem->setIcon(0, m_treeWidget->style()->standardIcon(QStyle::SP_DirIcon));
+
+            scanDirectory(newItem, m_lastOpenedDir);
+            emit directoryAdded();
+        } else {
+            // Reset to home if directory doesn't exist
+            m_lastOpenedDir = QDir::homePath();
+        }
     }
 }

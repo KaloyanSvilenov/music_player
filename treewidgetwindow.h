@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QTreeWidget>
 #include <QDir>
+#include <QSettings>
 
 class TreeWidgetWindow : public QObject
 {
@@ -13,8 +14,12 @@ public:
 
     const QStringList audioExtensions = {"*.mp3", "*.wav", "*.flac"};
 
+    void saveState();
+    void restoreState();
+
 signals:
     void fileAddRequested(const QString &filePath);
+    void directoryAdded();
 
 public slots:
     void onCustomContextMenuRequested(const QPoint &pos);
@@ -24,9 +29,11 @@ public slots:
 private:
     QTreeWidget *m_treeWidget;
     QPoint m_dragStartPosition;
+    QString m_lastOpenedDir;
 
     void addAudioFilesToTree(QTreeWidgetItem *parent, const QString &dirPath);
     void clearAllDirectories();
+    QString getConfigPath() const;
 };
 
 #endif // TREEWIDGETWINDOW_H

@@ -28,7 +28,6 @@ void AudioQueueTable::onCustomContextMenuRequested()
     m_contextMenu = new QMenu(m_tableWidget);
     QAction *moveUpAction = m_contextMenu->addAction("Move up");
     QAction *moveDownAction = m_contextMenu->addAction("Move down");
-    m_contextMenu->addSeparator();
     QAction *removeAction = m_contextMenu->addAction("Remove song");
     QAction *clearAction = m_contextMenu->addAction("Clear queue");
 
