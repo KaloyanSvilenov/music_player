@@ -14,13 +14,25 @@ qt_add_executable(music_player
     treewidgetwindow.h treewidgetwindow.cpp
     audioqueuetable.h audioqueuetable.cpp
     audiometadata.h audiometadata.cpp
+    waveformprogressbar.h waveformprogressbar.cpp
+    hoverbutton.h hoverbutton.cpp
+    playbutton.h playbutton.cpp
+    loopbutton.h loopbutton.cpp
 )
+
+file(COPY ${CMAKE_SOURCE_DIR}/styles DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY ${CMAKE_SOURCE_DIR}/images DESTINATION ${CMAKE_BINARY_DIR})
+
 
 target_link_libraries(music_player
     PRIVATE
         Qt::Core
         Qt::Widgets
         Qt::Multimedia
+)
+
+target_include_directories(music_player PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 include(GNUInstallDirs)

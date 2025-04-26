@@ -24,109 +24,8 @@
     </sizepolicy>
    </property>
    <layout class="QGridLayout" name="gridLayout_4">
-    <item row="3" column="2">
-     <widget class="QPushButton" name="shuffleButton">
-      <property name="maximumSize">
-       <size>
-        <width>30</width>
-        <height>30</height>
-       </size>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="4">
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="0" column="0">
-       <widget class="QLabel" name="currentTime">
-        <property name="maximumSize">
-         <size>
-          <width>75</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>TextLabel</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLabel" name="totalTime">
-        <property name="maximumSize">
-         <size>
-          <width>75</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>/ TextLabel</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" colspan="2">
-       <widget class="QSlider" name="horizontalSlider">
-        <property name="maximumSize">
-         <size>
-          <width>150</width>
-          <height>1555555</height>
-         </size>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Orientation::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item row="3" column="0">
-     <widget class="QPushButton" name="loopButton">
-      <property name="maximumSize">
-       <size>
-        <width>30</width>
-        <height>30</height>
-       </size>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="0">
-     <widget class="QPushButton" name="backButton">
-      <property name="maximumSize">
-       <size>
-        <width>30</width>
-        <height>30</height>
-       </size>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="2">
-     <widget class="QPushButton" name="nextButton">
-      <property name="minimumSize">
-       <size>
-        <width>30</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>30</width>
-        <height>30</height>
-       </size>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-     </widget>
-    </item>
     <item row="2" column="1">
-     <widget class="QPushButton" name="pausePlay">
+     <widget class="PlayButton" name="pausePlay">
       <property name="minimumSize">
        <size>
         <width>0</width>
@@ -141,31 +40,6 @@
       </property>
       <property name="text">
        <string/>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="3" rowspan="2">
-     <widget class="QProgressBar" name="progressBar">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>1000</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>50</height>
-       </size>
-      </property>
-      <property name="value">
-       <number>24</number>
       </property>
      </widget>
     </item>
@@ -189,46 +63,84 @@
         <height>16777215</height>
        </size>
       </property>
+      <property name="lineWidth">
+       <number>-10</number>
+      </property>
       <property name="orientation">
        <enum>Qt::Orientation::Horizontal</enum>
+      </property>
+      <property name="handleWidth">
+       <number>0</number>
       </property>
       <property name="childrenCollapsible">
        <bool>false</bool>
       </property>
       <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="verticalLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_4">
-          <item>
-           <widget class="QLineEdit" name="searchBox">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>200</width>
-              <height>0</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushButton">
-            <property name="maximumSize">
-             <size>
-              <width>50</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Filters</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <widget class="QWidget" name="seachWidget" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>33</height>
+           </size>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QLineEdit" name="searchBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>200</width>
+               <height>0</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="HoverButton" name="filterButton">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>33</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>50</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
         </item>
         <item>
          <widget class="QTreeWidget" name="fileTree">
@@ -271,6 +183,8 @@
        </property>
        <property name="acceptDrops">
         <bool>true</bool>
+       <property name="lineWidth">
+        <number>5</number>
        </property>
        <property name="dragEnabled">
         <bool>false</bool>
@@ -293,11 +207,6 @@
        <attribute name="verticalHeaderStretchLastSection">
         <bool>true</bool>
        </attribute>
-       <column>
-        <property name="text">
-         <string>#</string>
-        </property>
-       </column>
        <column>
         <property name="text">
          <string>File Name</string>
@@ -331,8 +240,11 @@
       </widget>
       <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="verticalLayout_2">
+        <property name="spacing">
+         <number>0</number>
+        </property>
         <item>
-         <widget class="QWidget" name="widget_2" native="true">
+         <widget class="QWidget" name="albumWidget" native="true">
           <layout class="QGridLayout" name="gridLayout_2">
            <item row="0" column="0">
             <widget class="QLabel" name="label">
@@ -383,6 +295,138 @@
       </widget>
      </widget>
     </item>
+    <item row="2" column="3" rowspan="2">
+     <widget class="WaveformProgressBar" name="progressBar">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>1000</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="value">
+       <number>24</number>
+      </property>
+      <property name="format">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="4">
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="1" column="0" colspan="2">
+       <widget class="QSlider" name="horizontalSlider">
+        <property name="maximumSize">
+         <size>
+          <width>150</width>
+          <height>1555555</height>
+         </size>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="totalTime">
+        <property name="maximumSize">
+         <size>
+          <width>75</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>/ 0.00</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="currentTime">
+        <property name="maximumSize">
+         <size>
+          <width>75</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>0.00</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="3" column="2">
+     <widget class="HoverButton" name="shuffleButton">
+      <property name="maximumSize">
+       <size>
+        <width>30</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0">
+     <widget class="LoopButton" name="loopButton">
+      <property name="maximumSize">
+       <size>
+        <width>30</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="2">
+     <widget class="HoverButton" name="nextButton">
+      <property name="minimumSize">
+       <size>
+        <width>30</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>30</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="HoverButton" name="backButton">
+      <property name="maximumSize">
+       <size>
+        <width>30</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <action name="actionSettings">
@@ -401,6 +445,28 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>WaveformProgressBar</class>
+   <extends>QProgressBar</extends>
+   <header>waveformprogressbar.h</header>
+  </customwidget>
+  <customwidget>
+   <class>HoverButton</class>
+   <extends>QPushButton</extends>
+   <header>hoverbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>PlayButton</class>
+   <extends>QPushButton</extends>
+   <header>playbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>LoopButton</class>
+   <extends>QPushButton</extends>
+   <header>loopbutton.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
