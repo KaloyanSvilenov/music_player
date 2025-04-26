@@ -1,4 +1,11 @@
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
+
+#include "treewidgetwindow.h"
+#include "audioqueuetable.h"
+
 #pragma once
+
 #include <QMainWindow>
 #include <QResizeEvent>
 #include <QEnterEvent>
@@ -25,4 +32,6 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    TreeWidgetWindow *m_treeWindowManager;
+    AudioQueueTable *m_queueTable;
 };

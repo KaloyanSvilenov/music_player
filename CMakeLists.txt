@@ -11,6 +11,9 @@ qt_add_executable(music_player
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
+    treewidgetwindow.h treewidgetwindow.cpp
+    audioqueuetable.h audioqueuetable.cpp
+    audiometadata.h audiometadata.cpp
     waveformprogressbar.h waveformprogressbar.cpp
     hoverbutton.h hoverbutton.cpp
     playbutton.h playbutton.cpp

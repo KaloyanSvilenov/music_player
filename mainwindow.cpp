@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include <QHeaderView>
 #include <QResizeEvent>
+#include <QTimer>
 #include <QMenu>
 #include <QMediaPlayer>
 #include <QFileDialog>
@@ -13,6 +14,17 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    // Initialize components
+    m_queueTable = new AudioQueueTable(ui->tableWidget, this);
+    m_treeWindowManager = new TreeWidgetWindow(ui->fileTree, this);
+
+    // Set up context menu
+    m_queueTable->onCustomContextMenuRequested();
+
+    // Connections
+    connect(m_treeWindowManager, &TreeWidgetWindow::fileAddRequested,
+            m_queueTable, &AudioQueueTable::enqueue);
+      
     //Table Setup
     ui->tableWidget->resize(800, ui->tableWidget->width());
     ui->tableWidget->setColumnWidth(0, 150);
@@ -64,6 +76,8 @@ void MainWindow::onMenuActionTriggered(QAction *action) {
 
 MainWindow::~MainWindow()
 {
+    // Save state before closing
+    m_treeWindowManager->saveState();
     delete ui;
 }
 
