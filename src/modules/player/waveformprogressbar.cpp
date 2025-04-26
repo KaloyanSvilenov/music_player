@@ -1,4 +1,4 @@
-#include "WaveformProgressBar.h"
+#include "waveformprogressbar.h"
 #include <QPainter>
 #include <QStyleOptionProgressBar>
 

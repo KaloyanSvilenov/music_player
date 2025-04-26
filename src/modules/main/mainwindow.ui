@@ -183,6 +183,7 @@
        </property>
        <property name="acceptDrops">
         <bool>true</bool>
+       </property>
        <property name="lineWidth">
         <number>5</number>
        </property>
@@ -248,6 +249,12 @@
           <layout class="QGridLayout" name="gridLayout_2">
            <item row="0" column="0">
             <widget class="QLabel" name="label">
+             <property name="minimumSize">
+              <size>
+               <width>200</width>
+               <height>200</height>
+              </size>
+             </property>
              <property name="maximumSize">
               <size>
                <width>250</width>
@@ -261,7 +268,10 @@
               <pixmap>C:/Users/Daniel/Downloads/Harold-632x1024.webp</pixmap>
              </property>
              <property name="scaledContents">
-              <bool>true</bool>
+              <bool>false</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignmentFlag::AlignCenter</set>
              </property>
             </widget>
            </item>
@@ -287,6 +297,16 @@
            </property>
            <property name="text">
             <string>Metadata</string>
+           </property>
+          </widget>
+          <widget class="QListView" name="listViewMetaData">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>10</y>
+             <width>401</width>
+             <height>301</height>
+            </rect>
            </property>
           </widget>
          </widget>
