@@ -1,8 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "treewidgetwindow.h"
-#include "audioqueuetable.h"
+#include "modules/dirTree/treewidgetwindow.h"
+#include "modules/tableQueue/audioqueuetable.h"
 
 #pragma once
 
@@ -35,3 +35,5 @@ private:
     TreeWidgetWindow *m_treeWindowManager;
     AudioQueueTable *m_queueTable;
 };
+
+#endif // MAINWINDOW_H

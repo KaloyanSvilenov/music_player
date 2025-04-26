@@ -7,12 +7,18 @@
 #include <QTableWidget>
 #include <QQueue>
 #include <QString>
+#include <QLabel>
+#include <QListWidget>
+#include <QStandardItemModel>
 
 class AudioQueueTable : public QObject
 {
     Q_OBJECT
 public:
-    explicit AudioQueueTable(QTableWidget *tableWidget, QObject *parent = nullptr);
+    explicit AudioQueueTable(QTableWidget *tableWidget,
+                             QListView* metadataView = nullptr,
+                             QLabel* coverArtLabel = nullptr,
+                             QObject *parent = nullptr);
 
     void onCustomContextMenuRequested();
 
@@ -37,13 +43,25 @@ public:
     // Internal queue storage
     QQueue<QString> m_fileQueue;
 
+    void setDisplayWidgets(QListView* metadataView, QLabel* coverArtLabel);
+
 signals:
     void queueChanged();
     void rowRemoved(int row, const QString& filePath);
+    void rowDoubleClicked(int row, const QString& filePath);
+
+private slots:
+    void handleItemDoubleClick(QTableWidgetItem* item);
+    void displayMetadata(int row);
+    void displayCoverArt(const QString& filePath);
 
 private:
     AudioMetadataReader m_metadataReader;
     QTableWidget *m_tableWidget;
     QMenu *m_contextMenu;
+
+    QListView* m_metadataView;
+    QLabel* m_coverArtLabel;
+    QStandardItemModel* m_metadataModel;
 };
 #endif // AUDIOQUEUEMANAGER_H

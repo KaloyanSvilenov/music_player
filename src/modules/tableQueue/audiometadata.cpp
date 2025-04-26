@@ -2,6 +2,8 @@
 #include <QMediaPlayer>
 #include <QFileInfo>
 #include <QEventLoop>
+#include <QRegularExpression>
+#include <QImage>
 
 AudioMetadataReader::AudioMetadataReader(QObject *parent) : QObject(parent) {}
 
@@ -17,6 +19,7 @@ AudioMetadata AudioMetadataReader::readMetadata(const QString &filePath)
     meta.genre = "Unknown Genre";
     meta.duration = "--:--";
     meta.durationMs = 0;
+    meta.bitrate = 0;
 
     // Using QMediaPlayer for metadata
     QMediaPlayer player;
@@ -24,7 +27,7 @@ AudioMetadata AudioMetadataReader::readMetadata(const QString &filePath)
 
     // Wait for media status to be loaded
     QEventLoop loop;
-    QObject::connect(&player, &QMediaPlayer::mediaStatusChanged, [&](QMediaPlayer::MediaStatus status) {
+    QObject::connect(&player, &QMediaPlayer::mediaStatusChanged, this, [&](QMediaPlayer::MediaStatus status) {
         if (status == QMediaPlayer::LoadedMedia || status == QMediaPlayer::BufferedMedia) {
             loop.quit();
         }
@@ -49,7 +52,7 @@ AudioMetadata AudioMetadataReader::readMetadata(const QString &filePath)
     if (meta.album.isEmpty()) meta.album = "Unknown Album";
 
     // Get genre
-    meta.genre = metadata.value(QMediaMetaData::Genre).toString();
+    meta.genre = parseGenre(metadata.value(QMediaMetaData::Genre));
     if (meta.genre.isEmpty()) meta.genre = "Unknown Genre";
 
     // Get duration
@@ -62,5 +65,55 @@ AudioMetadata AudioMetadataReader::readMetadata(const QString &filePath)
                             .arg(seconds % 60, 2, 10, QLatin1Char('0'));
     }
 
+    // Get bitrate
+    meta.bitrate = metadata.value(QMediaMetaData::AudioBitRate).toString();
+    if (meta.bitrate.isEmpty()) meta.bitrate = "Unknown BitRate";
+
     return meta;
+}
+
+QString AudioMetadataReader::parseGenre(const QVariant &genreData)
+{
+    if (!genreData.isValid())
+        return "Unknown Genre";
+
+    // Case 1: Already a single string (e.g., "Pop, Rock/Alt.Metal")
+    if (genreData.typeId() == QMetaType::QString) {
+        return genreData.toString().trimmed();
+    }
+    // Case 2: List of genres (e.g., ["Pop", "Rock", "Alt.Metal"])
+    else if (genreData.typeId() == QMetaType::QStringList) {
+        return genreData.toStringList().join(", ");
+    }
+
+    return "Unknown Genre";
+}
+
+QImage AudioMetadataReader::extractCoverArt(const QString& filePath)
+{
+    QMediaPlayer player;
+    player.setSource(QUrl::fromLocalFile(filePath));
+
+    // Wait for media to load
+    QEventLoop loop;
+
+    // Fixed connect call with context object (this)
+    connect(&player, &QMediaPlayer::mediaStatusChanged,
+            this,  // Added context object
+            [&](QMediaPlayer::MediaStatus status) {
+                if (status == QMediaPlayer::LoadedMedia ||
+                    status == QMediaPlayer::BufferedMedia) {
+                    loop.quit();
+                }
+            });
+
+    loop.exec();
+
+    // Try multiple cover art properties
+    QVariant coverData = player.metaData().value(QMediaMetaData::CoverArtImage);
+    if (!coverData.isValid()) {
+        coverData = player.metaData().value(QMediaMetaData::ThumbnailImage);
+    }
+
+    return coverData.isValid() ? coverData.value<QImage>() : QImage();
 }

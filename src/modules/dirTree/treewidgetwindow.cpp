@@ -49,7 +49,7 @@ void TreeWidgetWindow::onCustomContextMenuRequested(const QPoint &pos)
 
         // Connect actions conditionally
         if (isAudioFile) {
-            connect(addToQueueAction, &QAction::triggered, [this, filePath]() {
+            connect(addToQueueAction, &QAction::triggered, this, [this, filePath]() {
                 emit fileAddRequested(filePath);
             });
         } else {

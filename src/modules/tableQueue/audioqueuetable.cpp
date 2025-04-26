@@ -8,10 +8,23 @@
 #include <QMessageBox>
 #include <QTimer>
 
-AudioQueueTable::AudioQueueTable(QTableWidget *tableWidget, QObject *parent)
-    : QObject(parent), m_tableWidget(tableWidget)
+AudioQueueTable::AudioQueueTable(QTableWidget *tableWidget,
+                                 QListView* metadataView,
+                                 QLabel* coverArtLabel,
+                                 QObject *parent)
+    : QObject(parent),
+    m_tableWidget(tableWidget),
+    m_metadataView(metadataView),
+    m_coverArtLabel(coverArtLabel),
+    m_metadataModel(new QStandardItemModel(this))
 {
     m_tableWidget->resize(800, m_tableWidget->width());
+    m_tableWidget->setColumnWidth(0, 150);
+    m_tableWidget->setColumnWidth(1, 200);
+    m_tableWidget->setColumnWidth(2, 150);
+    m_tableWidget->setColumnWidth(3, 70);
+    m_tableWidget->setColumnWidth(4, 80);
+    m_tableWidget->setColumnWidth(5, 80);
     m_tableWidget->setColumnCount(5);
     m_tableWidget->setHorizontalHeaderLabels({"Name", "Artist", "Album", "Genre", "Duration"});
     m_tableWidget->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -20,6 +33,97 @@ AudioQueueTable::AudioQueueTable(QTableWidget *tableWidget, QObject *parent)
     m_tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     m_tableWidget->verticalHeader()->setStretchLastSection(false);
     m_tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+    // Metadata view setup
+    if (m_metadataView) {
+        m_metadataView->setModel(m_metadataModel);
+        m_metadataView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    }
+
+    // Connect double-click signal
+    connect(m_tableWidget, &QTableWidget::itemDoubleClicked,
+            this, &AudioQueueTable::handleItemDoubleClick);
+}
+
+void AudioQueueTable::setDisplayWidgets(QListView* metadataView, QLabel* coverArtLabel)
+{
+    m_metadataView = metadataView;
+    m_coverArtLabel = coverArtLabel;
+
+    if (m_metadataView) {
+        m_metadataView->setModel(m_metadataModel);
+        m_metadataView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    }
+}
+
+void AudioQueueTable::handleItemDoubleClick(QTableWidgetItem* item)
+{
+    int row = item->row();
+    QString filePath = m_fileQueue.at(row);
+
+    displayMetadata(row);
+    displayCoverArt(filePath);
+    emit rowDoubleClicked(row, filePath);
+}
+
+void AudioQueueTable::displayMetadata(int row)
+{
+    if (!m_metadataView) return;
+
+    m_metadataModel->clear();
+
+    QString filePath = m_fileQueue.at(row);
+    AudioMetadata meta = m_metadataReader.readMetadata(filePath);
+
+    QStandardItem* pathItem = new QStandardItem("File: " + filePath);
+    m_metadataModel->appendRow(pathItem);
+
+    QStandardItem* titleItem = new QStandardItem("Title: " + meta.title);
+    m_metadataModel->appendRow(titleItem);
+
+    QStandardItem* artistItem = new QStandardItem("Artist: " + meta.artist);
+    m_metadataModel->appendRow(artistItem);
+
+    QStandardItem* albumItem = new QStandardItem("Album: " + meta.album);
+    m_metadataModel->appendRow(albumItem);
+
+    QStandardItem* genreItem = new QStandardItem("Genre: " + meta.genre);
+    m_metadataModel->appendRow(genreItem);
+
+    QStandardItem* durationItem = new QStandardItem("Duration: " + meta.duration);
+    m_metadataModel->appendRow(durationItem);
+
+    QStandardItem* bitrateItem = new QStandardItem("Bitrate: " + meta.bitrate + " kbps");
+    m_metadataModel->appendRow(bitrateItem);
+}
+
+void AudioQueueTable::displayCoverArt(const QString& filePath)
+{
+    if (!m_coverArtLabel) return;
+
+    // Clear previous content
+    m_coverArtLabel->clear();
+
+    QImage cover = m_metadataReader.extractCoverArt(filePath);
+    qDebug() << "Cover art valid:" << !cover.isNull();
+    if (!cover.isNull()) {
+        // Convert to pixmap and scale properly
+        QPixmap pixmap = QPixmap::fromImage(cover);
+
+        // Calculate scaled size maintaining aspect ratio
+        int labelWidth = m_coverArtLabel->width() - 2; // Padding
+        int labelHeight = m_coverArtLabel->height() - 2;
+        pixmap = pixmap.scaled(labelWidth, labelHeight,
+                               Qt::KeepAspectRatio,
+                               Qt::SmoothTransformation);
+
+        m_coverArtLabel->setPixmap(pixmap);
+    } else {
+        // Show placeholder text if no art found
+        m_coverArtLabel->setText("No Cover Art");
+        m_coverArtLabel->setStyleSheet("QLabel { color: gray; font-style: italic; }");
+        m_coverArtLabel->setAlignment(Qt::AlignCenter);
+    }
 }
 
 void AudioQueueTable::onCustomContextMenuRequested()
@@ -38,7 +142,7 @@ void AudioQueueTable::onCustomContextMenuRequested()
     connect(clearAction, &QAction::triggered, this, &AudioQueueTable::clearQueue);
 
     // Context menu request handler
-    connect(m_tableWidget, &QTableWidget::customContextMenuRequested,
+    connect(m_tableWidget, &QTableWidget::customContextMenuRequested, this,
             [this, moveUpAction, moveDownAction, removeAction](const QPoint &pos) {
                 bool hasSelection = m_tableWidget->selectedItems().count() > 0;
                 bool singleSelection = m_tableWidget->selectedRanges().count() == 1;
@@ -59,7 +163,7 @@ bool AudioQueueTable::checkExists(const QString &filePath)
     if (existingIndex != -1) {
         // Highlight the existing row briefly
         m_tableWidget->selectRow(existingIndex);
-        QTimer::singleShot(300, [this]() {
+        QTimer::singleShot(300, this, [this]() {
             m_tableWidget->clearSelection();
         });
 
