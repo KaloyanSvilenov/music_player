@@ -58,11 +58,16 @@ QTableView::item {
 QTreeView {
     background-color: #44475A;
     color: #EEEEEE;
-    alternate-background-color: #444155;
     border-top: 1px solid #D0CCD0;
     border-bottom: 1px solid #D0CCD0;
     border-right 1px solid #D0CCD0;
     border-left: 1px solid #D0CCD0;
+    gridline-color: none;
+}
+
+QListView {
+    background-color: #44475A;
+    color: #EEEEEE;
     gridline-color: none;
 }
 
