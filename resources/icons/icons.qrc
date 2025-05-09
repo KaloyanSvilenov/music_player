@@ -1,0 +1,21 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>back_hover.png</file>
+        <file>back.png</file>
+        <file>filter_hover.png</file>
+        <file>filter.png</file>
+        <file>loop_hover.png</file>
+        <file>loop.png</file>
+        <file>next_hover.png</file>
+        <file>next.png</file>
+        <file>pause_hover.png</file>
+        <file>pause.png</file>
+        <file>play_hover.png</file>
+        <file>play.png</file>
+        <file>shuffle_hover.png</file>
+        <file>shuffle.png</file>
+        <file>volume_hover.png</file>
+        <file>volume.png</file>
+    </qresource>
+</RCC>
+

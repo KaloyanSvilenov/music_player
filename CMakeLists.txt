@@ -39,12 +39,12 @@ qt_add_executable(music_player
 )
 
 # Add resource files (if you have .qrc files)
-# qt_add_resources(music_player "resources"
-#     PREFIX "/"
-#     FILES
-#         resources/styles/style.qrc
-#         resources/icons/icons.qrc
-# )
+ qt_add_resources(music_player "resources"
+     PREFIX "/"
+     FILES
+         resources/styles/style.qrc
+         resources/icons/icons.qrc
+ )
 
 # Copy resources to build directory
 file(COPY ${CMAKE_SOURCE_DIR}/resources/styles DESTINATION ${CMAKE_BINARY_DIR})
