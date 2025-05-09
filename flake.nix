@@ -17,12 +17,6 @@
         makeWrapper
         bashInteractive
       ];
-
-      shellHook = ''
-        bashdir=$(mktemp -d)
-        makeWrapper "$(type -p fish)" "$bashdir/fish" "''${qtWrapperArgs[@]}"
-        exec "$bashdir/fish"
-      '';
     };
 
     packages.${system}.default = pkgs.qt6Packages.callPackage ./build.nix {};
