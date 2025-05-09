@@ -11,6 +11,7 @@ out/
 bin/
 */bin/
 result/
+result
 
 # Compiled object files
 *.o
