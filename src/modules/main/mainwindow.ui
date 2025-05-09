@@ -451,22 +451,22 @@
   <customwidget>
    <class>WaveformProgressBar</class>
    <extends>QProgressBar</extends>
-   <header>./modules/player/waveformprogressbar.h</header>
+   <header>player/waveformprogressbar.h</header>
   </customwidget>
   <customwidget>
    <class>HoverButton</class>
    <extends>QPushButton</extends>
-   <header>./modules/player/hoverbutton.h</header>
+   <header>player/hoverbutton.h</header>
   </customwidget>
   <customwidget>
    <class>PlayButton</class>
    <extends>QPushButton</extends>
-   <header>./modules/player/playbutton.h</header>
+   <header>player/playbutton.h</header>
   </customwidget>
   <customwidget>
    <class>LoopButton</class>
    <extends>QPushButton</extends>
-   <header>./modules/player/loopbutton.h</header>
+   <header>player/loopbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
