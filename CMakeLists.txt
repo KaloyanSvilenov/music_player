@@ -38,14 +38,6 @@ qt_add_executable(music_player
     src/modules/player/waveformprogressbar.h
 )
 
-# Add resource files (if you have .qrc files)
- qt_add_resources(music_player "resources"
-     PREFIX "/"
-     FILES
-         resources/styles/style.qrc
-         resources/icons/icons.qrc
- )
-
 # Copy resources to build directory
 file(COPY ${CMAKE_SOURCE_DIR}/resources/styles DESTINATION ${CMAKE_BINARY_DIR})
 file(COPY ${CMAKE_SOURCE_DIR}/resources/icons DESTINATION ${CMAKE_BINARY_DIR})
