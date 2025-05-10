@@ -12,6 +12,7 @@ SOURCES += \
     src/modules/main/main.cpp \
     src/modules/main/mainwindow.cpp \
     src/modules/dirTree/treewidgetwindow.cpp \
+    src/modules/player/audioplayer.cpp \
     src/modules/player/hoverbutton.cpp \
     src/modules/player/loopbutton.cpp \
     src/modules/player/playbutton.cpp \
@@ -23,6 +24,7 @@ SOURCES += \
 HEADERS += \
     src/modules/main/mainwindow.h \
     src/modules/dirTree/treewidgetwindow.h \
+    src/modules/player/audioplayer.h \
     src/modules/player/hoverbutton.h \
     src/modules/player/loopbutton.h \
     src/modules/player/playbutton.h \

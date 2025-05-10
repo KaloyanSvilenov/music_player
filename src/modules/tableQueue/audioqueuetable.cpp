@@ -7,16 +7,26 @@
 #include <QMimeData>
 #include <QMessageBox>
 #include <QTimer>
+#include <algorithm>  // For std::shuffle
+#include <random>     // For random engine
+
 
 AudioQueueTable::AudioQueueTable(QTableWidget *tableWidget,
+                                 AudioPlayer* audioPlayer,
+                                 WaveformProgressBar* bar,
+                                 PlayButton* button,
                                  QListView* metadataView,
                                  QLabel* coverArtLabel,
                                  QObject *parent)
     : QObject(parent),
     m_tableWidget(tableWidget),
+    currentSongIndex(-1),
     m_metadataView(metadataView),
     m_coverArtLabel(coverArtLabel),
-    m_metadataModel(new QStandardItemModel(this))
+    m_metadataModel(new QStandardItemModel(this)),
+    player(audioPlayer),
+    progressBar(bar),
+    playButton(button)
 {
     m_tableWidget->resize(800, m_tableWidget->width());
     m_tableWidget->setColumnWidth(0, 150);
@@ -32,6 +42,7 @@ AudioQueueTable::AudioQueueTable(QTableWidget *tableWidget,
     m_tableWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     m_tableWidget->verticalHeader()->setStretchLastSection(false);
+    m_tableWidget->verticalHeader()->setVisible(false); // temp solution to a style problem
     m_tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     // Metadata view setup
@@ -43,6 +54,10 @@ AudioQueueTable::AudioQueueTable(QTableWidget *tableWidget,
     // Connect double-click signal
     connect(m_tableWidget, &QTableWidget::itemDoubleClicked,
             this, &AudioQueueTable::handleItemDoubleClick);
+
+    // Connect for end of song signal
+    connect(player->getPlayer(), &QMediaPlayer::mediaStatusChanged,
+            this, &AudioQueueTable::onMediaStatusChanged);
 }
 
 void AudioQueueTable::setDisplayWidgets(QListView* metadataView, QLabel* coverArtLabel)
@@ -61,8 +76,13 @@ void AudioQueueTable::handleItemDoubleClick(QTableWidgetItem* item)
     int row = item->row();
     QString filePath = m_fileQueue.at(row);
 
+    currentSongIndex = row;
     displayMetadata(row);
     displayCoverArt(filePath);
+    player->setCurrentSong(filePath);
+    progressBar->setValue(0);
+    playButton->setToPlaying();
+    player->play();
     emit rowDoubleClicked(row, filePath);
 }
 
@@ -95,6 +115,7 @@ void AudioQueueTable::displayMetadata(int row)
 
     QStandardItem* bitrateItem = new QStandardItem("Bitrate: " + meta.bitrate + " kbps");
     m_metadataModel->appendRow(bitrateItem);
+
 }
 
 void AudioQueueTable::displayCoverArt(const QString& filePath)
@@ -217,6 +238,8 @@ void AudioQueueTable::enqueue(const QString& filePath) {
     QTableWidgetItem *durationItem = new QTableWidgetItem(meta.duration);
     durationItem->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
     m_tableWidget->setItem(row, 4, durationItem);
+
+    m_tableWidget->update();
 
     emit queueChanged();
 }
@@ -348,3 +371,118 @@ void AudioQueueTable::swapTableRows(int row1, int row2)
         m_tableWidget->setItem(row2, col, item1);
     }
 }
+
+void AudioQueueTable::onMediaStatusChanged(QMediaPlayer::MediaStatus status)
+{
+    if (status == QMediaPlayer::EndOfMedia) {
+        if (loopEnabled) {
+            // If loop is enabled, restart the current song
+            QString currentSong = m_fileQueue.at(currentSongIndex);
+            player->setCurrentSong(currentSong);
+            progressBar->setValue(0);  // Reset progress bar
+            playButton->setToPlaying();
+            player->play();
+        } else {
+            // If loop is not enabled, play the next song
+            nextSong();
+        }
+    }
+}
+
+void AudioQueueTable::playSongAtIndex(int indexChange)
+{
+    // Ensure that we have items in the queue
+    if (isEmpty()) {
+        qDebug() << "Queue is empty. No more songs to play.";
+        return;
+    }
+
+    // Adjust the current song index based on the direction (next or previous)
+    currentSongIndex += indexChange;
+
+    // Loop if necessary (if we go beyond the queue)
+    if (currentSongIndex >= m_fileQueue.size()) {
+        currentSongIndex = 0;  // Loop to the first song
+    } else if (currentSongIndex < 0) {
+        currentSongIndex = m_fileQueue.size() - 1;  // Loop to the last song
+    }
+
+    // Get the song at the updated index
+    QString song = m_fileQueue.at(currentSongIndex);
+
+    // Set the new song for the player and start playing it
+    player->setCurrentSong(song);
+    progressBar->setValue(0);
+    playButton->setToPlaying();
+    player->play();
+
+    // Update the metadata and cover art for the new song
+    displayMetadata(currentSongIndex);
+    displayCoverArt(song);
+}
+
+void AudioQueueTable::nextSong()
+{
+    playSongAtIndex(1);  // Move forward by 1
+}
+
+void AudioQueueTable::previousSong()
+{
+    playSongAtIndex(-1);  // Move backward by 1
+}
+
+void AudioQueueTable::shuffleQueue()
+{
+    if (m_fileQueue.isEmpty()) {
+        return;
+    }
+
+    // Shuffle the queue using std::shuffle
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(m_fileQueue.begin(), m_fileQueue.end(), g);
+
+    // Now update the UI (table) to reflect the shuffled order
+    for (int row = 0; row < m_fileQueue.size(); ++row) {
+        QString filePath = m_fileQueue.at(row);
+        AudioMetadata meta = m_metadataReader.readMetadata(filePath);
+
+        // Name column
+        QTableWidgetItem *nameItem = new QTableWidgetItem(meta.title.isEmpty() ?
+                                                              QFileInfo(filePath).fileName() : meta.title);
+        nameItem->setData(Qt::UserRole, filePath);
+        m_tableWidget->setItem(row, 0, nameItem);
+
+        // Artist column
+        QTableWidgetItem *artist = new QTableWidgetItem(meta.artist);
+        m_tableWidget->setItem(row, 1, artist);
+
+        // Album column
+        QTableWidgetItem *album = new QTableWidgetItem(meta.album);
+        m_tableWidget->setItem(row, 2, album);
+
+        // Genre column
+        QTableWidgetItem *genre = new QTableWidgetItem(meta.genre);
+        m_tableWidget->setItem(row, 3, genre);
+
+        // Duration column
+        QTableWidgetItem *durationItem = new QTableWidgetItem(meta.duration);
+        durationItem->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
+        m_tableWidget->setItem(row, 4, durationItem);
+    }
+
+    // Reset currentSongIndex to the start (index 0) after shuffle
+    currentSongIndex = 0;
+
+    emit queueChanged();  // Notify that the queue has changed
+}
+
+void AudioQueueTable::setLoopEnabled(bool enabled) {
+    loopEnabled = enabled;
+}
+
+bool AudioQueueTable::isLoopEnabled() const {
+    return loopEnabled;
+}
+
+

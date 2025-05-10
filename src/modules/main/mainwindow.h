@@ -30,6 +30,12 @@ private slots:
 
     void onMenuActionTriggered(QAction *action);
 
+    void on_backButton_clicked();
+
+    void on_nextButton_clicked();
+
+    void on_shuffleButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     TreeWidgetWindow *m_treeWindowManager;

@@ -42,3 +42,8 @@ void PlayButton::changePlaying(){
     isPlaying = isPlaying ? false : true;
     setIcon(QIcon(isPlaying ? hoverPauseIconPath : hoverPlayIconPath));
 }
+
+void PlayButton::setToPlaying(){
+    isPlaying = true;
+    setIcon(QIcon(defaultPauseIconPath));
+}
