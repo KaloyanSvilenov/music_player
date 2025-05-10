@@ -1,4 +1,8 @@
-{ stdenv, lib, qt6, wrapQtAppsHook }:
+{ stdenv
+, lib
+, qt6
+, wrapQtAppsHook
+}:
 
 stdenv.mkDerivation rec {
   pname = "music-player";
@@ -15,18 +19,45 @@ stdenv.mkDerivation rec {
     qt6.qtmultimedia
   ];
 
+  # QMake specific settings
+  dontUseCmakeConfigure = true;
+  enableParallelBuilding = true;
+
   configurePhase = ''
+    runHook preConfigure
     qmake6 PREFIX=$out \
-           CONFIG+=nix \
-           music_player.pro
+      CONFIG+=release \
+      QMAKE_CXXFLAGS+=" -std=c++17" \
+      DESTDIR=release \
+      OBJECTS_DIR=release/obj \
+      MOC_DIR=build/moc \
+      RCC_DIR=build/rcc \
+      UI_DIR=build/ui \
+      music_player.pro
+    runHook postConfigure
+  '';
+
+  buildPhase = ''
+    runHook preBuild
+    make -j$NIX_BUILD_CORES
+    runHook postBuild
   '';
 
   installPhase = ''
-    install -Dm755 music_player $out/bin/music_player
+    runHook preInstall
+    
+    # Install the binary (it's built in the release directory)
+    install -Dm755 release/music_player $out/bin/${pname}
+    
+    # Install resources
     mkdir -p $out/share/${pname}/resources
     cp -r resources/* $out/share/${pname}/resources/
-    wrapQtApp $out/bin/music_player \
+    
+    # Create Qt wrapper
+    wrapQtApp $out/bin/${pname} \
       --set QT_PLUGIN_PATH "${qt6.qtbase}/${qt6.qtbase.qtPluginPrefix}" \
-      --prefix PATH : ${lib.makeBinPath [ qt6.qtbase ]}
+      --prefix QML2_IMPORT_PATH : "${qt6.qtbase}/${qt6.qtbase.qtQmlPrefix}"
+    
+    runHook postInstall
   '';
 }
