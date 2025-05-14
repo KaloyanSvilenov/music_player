@@ -9,6 +9,7 @@ TEMPLATE = app
 
 # Source files
 SOURCES += \
+    src/modules/dirTree/searchbox.cpp \
     src/modules/main/main.cpp \
     src/modules/main/mainwindow.cpp \
     src/modules/dirTree/treewidgetwindow.cpp \
@@ -22,6 +23,7 @@ SOURCES += \
 
 # Header files
 HEADERS += \
+    src/modules/dirTree/searchbox.h \
     src/modules/main/mainwindow.h \
     src/modules/dirTree/treewidgetwindow.h \
     src/modules/player/audioplayer.h \

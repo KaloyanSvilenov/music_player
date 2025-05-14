@@ -105,7 +105,7 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QLineEdit" name="searchBox">
+            <widget class="SearchBox" name="searchBox">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -117,6 +117,11 @@
                <width>200</width>
                <height>0</height>
               </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Noto Sans Mono CJK JP</family>
+              </font>
              </property>
             </widget>
            </item>
@@ -467,6 +472,11 @@
    <class>LoopButton</class>
    <extends>QPushButton</extends>
    <header>player/loopbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>SearchBox</class>
+   <extends>QLineEdit</extends>
+   <header>dirTree/searchbox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

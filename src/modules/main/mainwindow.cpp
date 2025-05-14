@@ -66,7 +66,7 @@ MainWindow::MainWindow(QWidget *parent)
     menu->addAction("Song Name");
     menu->addAction("Year");
     ui->filterButton->setMenu(menu);
-    connect(menu, &QMenu::triggered, this, &MainWindow::onMenuActionTriggered);
+    connect(menu, &QMenu::triggered, ui->searchBox, &SearchBox::changeTextFromMenu);
 
     //Audio Player
 

@@ -111,7 +111,7 @@ QWidget {
 #tableWidget QHeaderView::section {
     background-color: #44475A;
     color: #CCCCCC;
-    padding: 4px;
+    padding: 7px;
     border-top: none;
     border-bottom: 1px solid #D0CCD0;
     border-right: 1px solid #D0CCD0;
@@ -165,7 +165,9 @@ QMenu::right-arrow {
     border-top: 1px solid #D0CCD0;
     border-bottom: none;
     border-right none;
-    border-left: 1px solid #D0CCD0
+    border-left: 1px solid #D0CCD0;
+    color: #D0CCD0;
+    font-family: 'Segoe UI';
 }
 
 
@@ -199,11 +201,6 @@ QSlider::sub-page:horizontal {
 
 QLabel {
     color: #D0CCD0;
-}
-
-QLineEdit {
-    background-color: #44475A;
-    border: none;
 }
 
 QTextEdit {
