@@ -43,20 +43,20 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pausePlay->setIconSize(QSize(50,50));
     ui->backButton->setIconSize(QSize(40,40));
     ui->nextButton->setIconSize(QSize(40,40));
-    ui->nextButton->setDefaultIcon("./icons/next.png");
-    ui->nextButton->setHoverIcon("./icons/next_hover.png");
-    ui->backButton->setDefaultIcon("./icons/back.png");
-    ui->backButton->setHoverIcon("./icons/back_hover.png");
-    ui->shuffleButton->setDefaultIcon("./icons/shuffle.png");
-    ui->shuffleButton->setHoverIcon("./icons/shuffle_hover.png");
-    ui->loopButton->setDefaultIcon("./icons/loop.png");
-    ui->loopButton->setHoverIcon("./icons/loop_hover.png");
-    ui->filterButton->setDefaultIcon("./icons/filter.png");
-    ui->filterButton->setHoverIcon("./icons/filter_hover.png");
-    ui->pausePlay->setDefaultPlayIcon("./icons/play.png");
-    ui->pausePlay->setHoverPlayIcon("./icons/play_hover.png");
-    ui->pausePlay->setDefaultPauseIcon("./icons/pause.png");
-    ui->pausePlay->setHoverPauseIcon("./icons/pause_hover.png");
+    ui->nextButton->setDefaultIcon(":/icons/next.png");
+    ui->nextButton->setHoverIcon(":/icons/next_hover.png");
+    ui->backButton->setDefaultIcon(":/icons/back.png");
+    ui->backButton->setHoverIcon(":/icons/back_hover.png");
+    ui->shuffleButton->setDefaultIcon(":/icons/shuffle.png");
+    ui->shuffleButton->setHoverIcon(":/icons/shuffle_hover.png");
+    ui->loopButton->setDefaultIcon(":/icons/loop.png");
+    ui->loopButton->setHoverIcon(":/icons/loop_hover.png");
+    ui->filterButton->setDefaultIcon(":/icons/filter.png");
+    ui->filterButton->setHoverIcon(":/icons/filter_hover.png");
+    ui->pausePlay->setDefaultPlayIcon(":/icons/play.png");
+    ui->pausePlay->setHoverPlayIcon(":/icons/play_hover.png");
+    ui->pausePlay->setDefaultPauseIcon(":/icons/pause.png");
+    ui->pausePlay->setHoverPauseIcon(":/icons/pause_hover.png");
 
     //Filter Button dropdown Menu
     QMenu *menu = new QMenu(this);\

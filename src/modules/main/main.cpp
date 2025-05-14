@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     MainWindow w;
 
-    QFile file("./styles/darktheme.qss");
+    QFile file(":/styles/darktheme.qss");
     file.open(QFile::ReadOnly);
     QString styleSheet = QLatin1String(file.readAll());
     a.setStyleSheet(styleSheet);

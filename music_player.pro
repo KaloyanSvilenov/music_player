@@ -38,7 +38,7 @@ FORMS += \
 
 # Resource files
 RESOURCES += \
-    resources/icons/icons.qrc
+    resources/icons/icons.qrc \
     resources/styles/styles.qrc
 
 # Additional configuration
