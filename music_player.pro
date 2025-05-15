@@ -57,6 +57,20 @@ UI_DIR = build/ui
 CONFIG(release, debug|release) {
     DESTDIR = release
     OBJECTS_DIR = release/obj
+
+    # Optimizations
+    QMAKE_CXXFLAGS_RELEASE += -O2
+    QMAKE_CFLAGS_RELEASE += -O2
+    DEFINES += QT_NO_DEBUG_OUTPUT
+
+    # Disable debug symbols
+    CONFIG += strip
+    CONFIG += no_debug_info
+
+    # Deployment with plugin control
+    win32 {
+        QMAKE_POST_LINK += $$quote(windeployqt --release --no-opengl-sw $$shell_path($$DESTDIR/$${TARGET}.exe))
+    }
 }
 
 # Debug build configuration
