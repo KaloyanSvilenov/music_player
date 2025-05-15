@@ -5,6 +5,11 @@
 
 int main(int argc, char *argv[])
 {
+    // Optimization
+    qputenv("QT_MULTIMEDIA_PREFERRED_PLUGINS", "windowsmediafoundation");
+    qputenv("QT_LOGGING_RULES", "qt.multimedia*=false");
+
+
     QApplication a(argc, argv);
     MainWindow w;
 

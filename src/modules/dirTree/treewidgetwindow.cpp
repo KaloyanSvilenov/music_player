@@ -12,7 +12,7 @@
 #include <QStandardPaths>
 
 TreeWidgetWindow::TreeWidgetWindow(QTreeWidget *treeWidget, QObject *parent)
-    : QObject(parent), m_treeWidget(treeWidget), m_lastOpenedDir(QDir::homePath())
+    : QObject(parent), m_treeWidget(treeWidget), m_lastOpenedDir()
 {
     m_treeWidget->setHeaderLabel("Audio Browser");
     m_treeWidget->setColumnCount(1);
@@ -166,7 +166,7 @@ void TreeWidgetWindow::restoreState()
     if (!QFile::exists(configPath)) return;
 
     QSettings settings(configPath, QSettings::IniFormat);
-    m_lastOpenedDir = settings.value("lastOpenedDir", QDir::homePath()).toString();
+    m_lastOpenedDir = settings.value("lastOpenedDir", "").toString();
 
     if (!m_lastOpenedDir.isEmpty() && QDir(m_lastOpenedDir).exists()) {
         clearAllDirectories();

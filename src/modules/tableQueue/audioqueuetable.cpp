@@ -472,7 +472,7 @@ void AudioQueueTable::shuffleQueue()
     }
 
     // Reset currentSongIndex to the start (index 0) after shuffle
-    currentSongIndex = 0;
+    currentSongIndex = -1;
 
     emit queueChanged();  // Notify that the queue has changed
 }
