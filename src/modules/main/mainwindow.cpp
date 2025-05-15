@@ -64,7 +64,7 @@ MainWindow::MainWindow(QWidget *parent)
     menu->addAction("Album");
     menu->addAction("Artist");
     menu->addAction("Song Name");
-    menu->addAction("Year");
+    //menu->addAction("Year"); // Not supported yet
     ui->filterButton->setMenu(menu);
     connect(menu, &QMenu::triggered, ui->searchBox, &SearchBox::changeTextFromMenu);
 
@@ -98,6 +98,19 @@ MainWindow::MainWindow(QWidget *parent)
     connect(audioPlayer->getPlayer(), &QMediaPlayer::positionChanged, ui->progressBar, &QProgressBar::setValue);
 
     connect(audioPlayer->getPlayer(), &QMediaPlayer::durationChanged, ui->progressBar, &QProgressBar::setMaximum);
+
+
+    connect(ui->searchBox, &SearchBox::searchTriggered,
+            m_treeWindowManager, &TreeWidgetWindow::searchFiles);
+
+    // Add a "Clear Search" button or action
+    QAction *clearSearch = new QAction("Clear Search", this);
+    clearSearch->setShortcut(QKeySequence("Esc"));
+    connect(clearSearch, &QAction::triggered, this, [this]() {
+        ui->searchBox->clear();
+        m_treeWindowManager->restoreState(); // Reload the original view
+    });
+    this->addAction(clearSearch);
 
 }
 

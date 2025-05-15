@@ -68,7 +68,6 @@ AudioMetadata AudioMetadataReader::readMetadata(const QString &filePath)
     // Get bitrate
     meta.bitrate = metadata.value(QMediaMetaData::AudioBitRate).toString();
     if (meta.bitrate.isEmpty()) meta.bitrate = "Unknown BitRate";
-
     return meta;
 }
 

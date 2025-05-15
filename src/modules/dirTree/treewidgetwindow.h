@@ -5,6 +5,8 @@
 #include <QTreeWidget>
 #include <QDir>
 #include <QSettings>
+#include <QCache>
+#include "tableQueue/audiometadata.h"
 
 class TreeWidgetWindow : public QObject
 {
@@ -27,6 +29,7 @@ public slots:
     void onCustomContextMenuRequested(const QPoint &pos);
     void addDirectoryToTree(const QPoint &pos);
     void scanDirectory(QTreeWidgetItem *parentItem, const QString &path);
+    void searchFiles(const QString &filter, const QString &searchText);
 
 private:
     QTreeWidget *m_treeWidget;
@@ -38,6 +41,13 @@ private:
     void addAudioFilesToTree(QTreeWidgetItem *parent, const QString &dirPath);
     void clearAllDirectories();
 
+    void searchDirectory(QTreeWidgetItem* parent, const QString& path,
+                         const QString& filter, const QString& searchText,
+                         bool &found);
+    bool matchesSearch(const QFileInfo &fileInfo,
+                       const QString &filter, const QString &searchText);
+    AudioMetadataReader m_metadataReader;
+    QCache<QString, AudioMetadata> m_metadataCache;
 };
 
 #endif // TREEWIDGETWINDOW_H

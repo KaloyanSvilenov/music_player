@@ -12,7 +12,7 @@
 #include <QStandardPaths>
 
 TreeWidgetWindow::TreeWidgetWindow(QTreeWidget *treeWidget, QObject *parent)
-    : QObject(parent), m_treeWidget(treeWidget), m_lastOpenedDir()
+    : QObject(parent), m_treeWidget(treeWidget), m_lastOpenedDir(), m_metadataCache(1000)
 {
     m_treeWidget->setHeaderLabel("Audio Browser");
     m_treeWidget->setColumnCount(1);
@@ -191,4 +191,106 @@ void TreeWidgetWindow::restoreState()
 
         emit directoryAdded();
     }
+}
+
+
+// Search stuff
+void TreeWidgetWindow::searchFiles(const QString &filter, const QString &searchText)
+{
+    if (m_lastOpenedDir.isEmpty()) return;
+
+    clearAllDirectories();
+
+    QTreeWidgetItem* rootItem = new QTreeWidgetItem(m_treeWidget);
+    rootItem->setText(0, "Search Results");
+    rootItem->setData(0, Qt::UserRole, m_lastOpenedDir);
+    rootItem->setIcon(0, m_treeWidget->style()->standardIcon(QStyle::SP_FileDialogContentsView));
+
+    bool found = false;
+    searchDirectory(rootItem, m_lastOpenedDir, filter, searchText, found);
+
+    if (!found) {
+        delete rootItem;
+        QTreeWidgetItem* noResults = new QTreeWidgetItem(m_treeWidget);
+        noResults->setText(0, "No results found");
+        noResults->setFlags(noResults->flags() & ~Qt::ItemIsSelectable);
+    } else {
+        rootItem->setExpanded(true);
+    }
+}
+
+void TreeWidgetWindow::searchDirectory(QTreeWidgetItem* parent, const QString& path,
+                                       const QString& filter, const QString& searchText,
+                                       bool &found)
+{
+    QDir dir(path);
+
+    // Search in subdirectories first
+    const QFileInfoList dirs = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+    for (const QFileInfo& dirInfo : dirs) {
+        bool dirFound = false;
+        QTreeWidgetItem* dirItem = new QTreeWidgetItem(parent);
+        dirItem->setText(0, dirInfo.fileName());
+        dirItem->setData(0, Qt::UserRole, dirInfo.absoluteFilePath());
+        dirItem->setIcon(0, m_treeWidget->style()->standardIcon(QStyle::SP_DirIcon));
+
+        searchDirectory(dirItem, dirInfo.absoluteFilePath(), filter, searchText, dirFound);
+
+        if (dirFound) {
+            found = true;
+        } else {
+            delete dirItem; // Remove empty directory items
+        }
+    }
+
+    // Search in files
+    const QFileInfoList files = dir.entryInfoList(audioExtensions, QDir::Files);
+    for (const QFileInfo &fileInfo : files) {
+        if (matchesSearch(fileInfo, filter, searchText)) {
+            QTreeWidgetItem *fileItem = new QTreeWidgetItem(parent);
+            fileItem->setText(0, fileInfo.fileName());
+            fileItem->setData(0, Qt::UserRole, fileInfo.absoluteFilePath());
+            fileItem->setIcon(0, m_treeWidget->style()->standardIcon(QStyle::SP_FileIcon));
+            found = true;
+        }
+    }
+}
+
+bool TreeWidgetWindow::matchesSearch(const QFileInfo &fileInfo,
+                                     const QString &filter, const QString &searchText)
+{
+    if (searchText.isEmpty()) return false;
+
+    QString lowerSearch = searchText.toLower();
+    QString filePath = fileInfo.absoluteFilePath();
+    AudioMetadata* meta = m_metadataCache.object(filePath);
+
+    if (!meta) {
+        // Not in cache, read and store
+        meta = new AudioMetadata(m_metadataReader.readMetadata(filePath));
+        m_metadataCache.insert(filePath, meta);
+    }
+
+    if (filter == "File Names") {
+        return fileInfo.fileName().toLower().contains(lowerSearch);
+    }
+    else if (filter == "Artist") {
+        return meta->artist.toLower().contains(lowerSearch);
+    }
+    else if (filter == "Album") {
+        return meta->album.toLower().contains(lowerSearch);
+    }
+    else if (filter == "Song Name") {
+        return meta->title.toLower().contains(lowerSearch);
+    }
+    else if (filter == "Year") {
+        // Note: You might want to add year to your AudioMetadata struct
+        // For now, we'll skip year as it's not in your metadata struct
+        return false;
+    }
+    else if (filter == "Genre") {
+        return meta->genre.toLower().contains(lowerSearch);
+    }
+
+    return false;
 }

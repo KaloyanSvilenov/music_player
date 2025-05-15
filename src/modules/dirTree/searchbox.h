@@ -2,15 +2,25 @@
 #define SEARCHBOX_H
 
 #include <QLineEdit>
-#include <player/hoverbutton.h>
+#include <QAction>
 
 class SearchBox : public QLineEdit
 {
+    Q_OBJECT
 public:
-    SearchBox(QWidget *lineEdit);
+    explicit SearchBox(QWidget *parent = nullptr);
+
+    QString currentFilter() const { return m_currentFilter; }
+
+signals:
+    void searchTriggered(const QString &filter, const QString &text);
+
+public slots:
     void changeTextFromMenu(QAction *action);
+    void onSearch();
+
 private:
-    QString menuText;
+    QString m_currentFilter;
 };
 
 #endif // SEARCHBOX_H
