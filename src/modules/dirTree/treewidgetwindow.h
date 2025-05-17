@@ -30,7 +30,6 @@ public slots:
     void addDirectoryToTree(const QPoint &pos);
     void scanDirectory(QTreeWidgetItem *parentItem, const QString &path);
     void searchFiles(const QString &filter, const QString &searchText);
-    void updateViewWithFilter(const QString& filter);
 
 private:
     QTreeWidget *m_treeWidget;
