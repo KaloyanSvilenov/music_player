@@ -204,68 +204,40 @@ void TreeWidgetWindow::searchFiles(const QString &filter, const QString &searchT
     rootItem->setText(0, "Search Results");
     rootItem->setExpanded(true);
 
-    QMap<QString, QList<AudioMetadata>> groupedItems;
     bool found = false;
 
-    // Collect matching files
-    std::function<void(const QString&)> collectMatches = [&](const QString &path) {
+    // Recursive function to search directories
+    std::function<void(const QString&)> searchDir = [&](const QString &path) {
         QDir dir(path);
 
+        // Search files
         const QFileInfoList files = dir.entryInfoList(audioExtensions, QDir::Files);
         for (const QFileInfo &fileInfo : files) {
-            AudioMetadata* meta = m_metadataCache.object(fileInfo.absoluteFilePath());
-            if (!meta) {
-                meta = new AudioMetadata(m_metadataReader.readMetadata(fileInfo.absoluteFilePath()));
-                m_metadataCache.insert(fileInfo.absoluteFilePath(), meta);
-            }
-
             if (matchesSearch(fileInfo, filter, searchText)) {
                 found = true;
 
-                QString groupKey;
-                if (filter == "Artist") groupKey = meta->artist.isEmpty() ? "Unknown Artist" : meta->artist;
-                else if (filter == "Album") groupKey = meta->album.isEmpty() ? "Unknown Album" : meta->album;
-                else if (filter == "Genre") groupKey = meta->genre.isEmpty() ? "Unknown Genre" : meta->genre;
-                else groupKey = "Matching Files";
-
-                groupedItems[groupKey].append(*meta);
+                // Create the item using the same logic as addAudioFilesToTree
+                QTreeWidgetItem *fileItem = new QTreeWidgetItem(rootItem);
+                fileItem->setText(0, fileInfo.fileName());
+                fileItem->setData(0, Qt::UserRole, fileInfo.absoluteFilePath()); // Store full path
+                fileItem->setIcon(0, m_treeWidget->style()->standardIcon(QStyle::SP_FileIcon));
             }
         }
 
+        // Search subdirectories
         const QFileInfoList dirs = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
         for (const QFileInfo &dirInfo : dirs) {
-            collectMatches(dirInfo.absoluteFilePath());
+            searchDir(dirInfo.absoluteFilePath());
         }
     };
 
-    collectMatches(m_lastOpenedDir);
+    searchDir(m_lastOpenedDir);
 
     if (!found) {
         delete rootItem;
         QTreeWidgetItem* noResults = new QTreeWidgetItem(m_treeWidget);
         noResults->setText(0, "No results found");
         noResults->setFlags(noResults->flags() & ~Qt::ItemIsSelectable);
-        return;
-    }
-
-    // Add grouped items (same as in updateViewWithFilter)
-    for (auto it = groupedItems.begin(); it != groupedItems.end(); ++it) {
-        QTreeWidgetItem* groupItem = new QTreeWidgetItem(rootItem);
-        groupItem->setText(0, it.key());
-        groupItem->setIcon(0, m_treeWidget->style()->standardIcon(QStyle::SP_DirIcon));
-
-        std::sort(it.value().begin(), it.value().end(),
-                  [](const AudioMetadata &a, const AudioMetadata &b) {
-                      return a.title.compare(b.title, Qt::CaseInsensitive) < 0;
-                  });
-
-        for (const AudioMetadata& meta : it.value()) {
-            QTreeWidgetItem* item = new QTreeWidgetItem(groupItem);
-            item->setText(0, meta.title);
-            item->setIcon(0, m_treeWidget->style()->standardIcon(QStyle::SP_FileIcon));
-        }
-
-        groupItem->setExpanded(true);
     }
 }
 
