@@ -6,7 +6,7 @@
 SearchBox::SearchBox(QWidget *parent)
     : QLineEdit(parent), m_currentFilter("File Names")
 {
-    setPlaceholderText("Search...");
+    setPlaceholderText("Search by " + m_currentFilter + "...");
     addAction(QIcon(":/icons/search.png"), QLineEdit::LeadingPosition);
 
     connect(this, &QLineEdit::returnPressed, this, &SearchBox::onSearch);

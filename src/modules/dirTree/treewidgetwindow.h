@@ -30,6 +30,7 @@ public slots:
     void addDirectoryToTree(const QPoint &pos);
     void scanDirectory(QTreeWidgetItem *parentItem, const QString &path);
     void searchFiles(const QString &filter, const QString &searchText);
+    void updateViewWithFilter(const QString& filter);
 
 private:
     QTreeWidget *m_treeWidget;
@@ -43,7 +44,7 @@ private:
 
     void searchDirectory(QTreeWidgetItem* parent, const QString& path,
                          const QString& filter, const QString& searchText,
-                         bool &found);
+                         bool &found, bool groupByMetadata);
     bool matchesSearch(const QFileInfo &fileInfo,
                        const QString &filter, const QString &searchText);
     AudioMetadataReader m_metadataReader;
