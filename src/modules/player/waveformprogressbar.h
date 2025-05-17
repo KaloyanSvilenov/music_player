@@ -4,6 +4,7 @@
 #include <QMouseEvent>
 #include <QPaintEvent>
 #include <QResizeEvent>
+#include <QAudioDecoder>
 
 class WaveformProgressBar : public QProgressBar
 {
@@ -12,11 +13,11 @@ class WaveformProgressBar : public QProgressBar
 public:
     explicit WaveformProgressBar(QWidget *parent = nullptr);
     void setAudioFile(const QString &filePath);
+    ~WaveformProgressBar(); // Added destructor to clean up decoder
 
 signals:
     void userSeeked(int position);
     void waveformReady();  // Emitted when waveform is fully decoded
-
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
@@ -27,12 +28,13 @@ protected:
 
 private:
     void loadWaveformData();
-    void regenerateWaveform(); // New method
+    void regenerateWaveform();
+    void stopAndClearDecoder(); // New method to stop and clean up decoder
     QVector<float> m_waveformData;
     QVector<float> m_tempSamples; // Raw, full-resolution samples
     bool m_dragging = false;
     QString m_audioFilePath;
     bool m_isLoading = false;
     QVector<float> m_pendingWaveform;
-
+    QAudioDecoder *m_decoder = nullptr; // Track active decoder
 };
