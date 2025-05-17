@@ -58,18 +58,6 @@ AudioQueueTable::AudioQueueTable(QTableWidget *tableWidget,
     // Connect for end of song signal
     connect(player->getPlayer(), &QMediaPlayer::mediaStatusChanged,
             this, &AudioQueueTable::onMediaStatusChanged);
-    connect(progressBar, &WaveformProgressBar::waveformReady, this, [=]() {
-        if (pendingFilePath.isEmpty())
-            return;
-
-        displayMetadata(pendingRow);
-        displayCoverArt(pendingFilePath);
-        currentSongIndex = pendingRow;
-        player->setCurrentSong(pendingFilePath);
-        player->play();
-        playButton->setToPlaying();
-    });
-
 }
 
 void AudioQueueTable::setDisplayWidgets(QListView* metadataView, QLabel* coverArtLabel)
@@ -87,15 +75,22 @@ void AudioQueueTable::handleItemDoubleClick(QTableWidgetItem* item)
 {
     int row = item->row();
     QString filePath = m_fileQueue.at(row);
-
-    pendingRow = row;
-    pendingFilePath = filePath;
+    currentSongIndex = row;
 
     progressBar->setAudioFile(filePath);
 
-    emit rowDoubleClicked(row, filePath);
+    // Directly play the song without waiting for waveform
+    player->setCurrentSong(filePath);
+    player->play();
+    playButton->setToPlaying();
 
+    // Update display immediately
+    displayMetadata(row);
+    displayCoverArt(filePath);
+
+    emit rowDoubleClicked(row, filePath);
 }
+
 
 void AudioQueueTable::displayMetadata(int row)
 {
@@ -406,13 +401,11 @@ void AudioQueueTable::onMediaStatusChanged(QMediaPlayer::MediaStatus status)
 
 void AudioQueueTable::playSongAtIndex(int indexChange)
 {
-    // Ensure that we have items in the queue
     if (isEmpty()) {
         qDebug() << "Queue is empty. No more songs to play.";
         return;
     }
 
-    // Adjust the current song index based on the direction (next or previous)
     currentSongIndex += indexChange;
     if (currentSongIndex >= m_fileQueue.size()) {
         currentSongIndex = 0;
@@ -422,10 +415,16 @@ void AudioQueueTable::playSongAtIndex(int indexChange)
 
     QString song = m_fileQueue.at(currentSongIndex);
 
-    pendingRow = currentSongIndex;
-    pendingFilePath = song;
-
     progressBar->setAudioFile(song);
+
+    // Directly play without waveform dependency
+    player->setCurrentSong(song);
+    player->play();
+    playButton->setToPlaying();
+
+    // Update display
+    displayMetadata(currentSongIndex);
+    displayCoverArt(song);
 }
 
 void AudioQueueTable::nextSong()
