@@ -215,7 +215,7 @@ void TreeWidgetWindow::searchFiles(const QString &filter, const QString &searchT
         noResults->setText(0, "No results found");
         noResults->setFlags(noResults->flags() & ~Qt::ItemIsSelectable);
     } else {
-        rootItem->setExpanded(true);
+        rootItem->setExpanded(true); // Always expand the root if results found
     }
 }
 
@@ -238,6 +238,7 @@ void TreeWidgetWindow::searchDirectory(QTreeWidgetItem* parent, const QString& p
 
         if (dirFound) {
             found = true;
+            parent->setExpanded(true); // Expand parent when child has matches
         } else {
             delete dirItem; // Remove empty directory items
         }
@@ -252,10 +253,10 @@ void TreeWidgetWindow::searchDirectory(QTreeWidgetItem* parent, const QString& p
             fileItem->setData(0, Qt::UserRole, fileInfo.absoluteFilePath());
             fileItem->setIcon(0, m_treeWidget->style()->standardIcon(QStyle::SP_FileIcon));
             found = true;
+            parent->setExpanded(true); // Expand parent when file matches
         }
     }
 }
-
 bool TreeWidgetWindow::matchesSearch(const QFileInfo &fileInfo,
                                      const QString &filter, const QString &searchText)
 {
@@ -282,11 +283,6 @@ bool TreeWidgetWindow::matchesSearch(const QFileInfo &fileInfo,
     }
     else if (filter == "Song Name") {
         return meta->title.toLower().contains(lowerSearch);
-    }
-    else if (filter == "Year") {
-        // Note: You might want to add year to your AudioMetadata struct
-        // For now, we'll skip year as it's not in your metadata struct
-        return false;
     }
     else if (filter == "Genre") {
         return meta->genre.toLower().contains(lowerSearch);
