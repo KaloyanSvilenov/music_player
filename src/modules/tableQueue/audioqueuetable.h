@@ -70,7 +70,6 @@ private slots:
     void displayCoverArt(const QString& filePath);
     void onMediaStatusChanged(QMediaPlayer::MediaStatus status);
     void playSongAtIndex(int indexChange);  // Internal slot for handling the next song
-
 private:
     AudioMetadataReader m_metadataReader;
     QTableWidget *m_tableWidget;
@@ -83,5 +82,7 @@ private:
     WaveformProgressBar* progressBar;
     PlayButton* playButton;
     bool loopEnabled = false;
+    int pendingRow = -1;
+    QString pendingFilePath;
 };
 #endif // AUDIOQUEUEMANAGER_H

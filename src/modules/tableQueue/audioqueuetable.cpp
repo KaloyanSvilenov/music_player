@@ -58,6 +58,18 @@ AudioQueueTable::AudioQueueTable(QTableWidget *tableWidget,
     // Connect for end of song signal
     connect(player->getPlayer(), &QMediaPlayer::mediaStatusChanged,
             this, &AudioQueueTable::onMediaStatusChanged);
+    connect(progressBar, &WaveformProgressBar::waveformReady, this, [=]() {
+        if (pendingFilePath.isEmpty())
+            return;
+
+        displayMetadata(pendingRow);
+        displayCoverArt(pendingFilePath);
+        currentSongIndex = pendingRow;
+        player->setCurrentSong(pendingFilePath);
+        player->play();
+        playButton->setToPlaying();
+    });
+
 }
 
 void AudioQueueTable::setDisplayWidgets(QListView* metadataView, QLabel* coverArtLabel)
@@ -76,14 +88,13 @@ void AudioQueueTable::handleItemDoubleClick(QTableWidgetItem* item)
     int row = item->row();
     QString filePath = m_fileQueue.at(row);
 
-    currentSongIndex = row;
-    displayMetadata(row);
-    displayCoverArt(filePath);
-    player->setCurrentSong(filePath);
-    progressBar->setValue(0);
-    playButton->setToPlaying();
-    player->play();
+    pendingRow = row;
+    pendingFilePath = filePath;
+
+    progressBar->setAudioFile(filePath);
+
     emit rowDoubleClicked(row, filePath);
+
 }
 
 void AudioQueueTable::displayMetadata(int row)
@@ -376,18 +387,22 @@ void AudioQueueTable::onMediaStatusChanged(QMediaPlayer::MediaStatus status)
 {
     if (status == QMediaPlayer::EndOfMedia) {
         if (loopEnabled) {
-            // If loop is enabled, restart the current song
-            QString currentSong = m_fileQueue.at(currentSongIndex);
-            player->setCurrentSong(currentSong);
-            progressBar->setValue(0);  // Reset progress bar
-            playButton->setToPlaying();
-            player->play();
+            // Restart the current song using the path instead of index
+            int index = m_fileQueue.indexOf(pendingFilePath);
+            if (index != -1) {
+                currentSongIndex = index;
+                QString currentSong = m_fileQueue.at(currentSongIndex);
+                player->setCurrentSong(currentSong);
+                progressBar->setValue(0);  // Reset progress bar
+                playButton->setToPlaying();
+                player->play();
+            }
         } else {
-            // If loop is not enabled, play the next song
             nextSong();
         }
     }
 }
+
 
 void AudioQueueTable::playSongAtIndex(int indexChange)
 {
@@ -399,26 +414,18 @@ void AudioQueueTable::playSongAtIndex(int indexChange)
 
     // Adjust the current song index based on the direction (next or previous)
     currentSongIndex += indexChange;
-
-    // Loop if necessary (if we go beyond the queue)
     if (currentSongIndex >= m_fileQueue.size()) {
-        currentSongIndex = 0;  // Loop to the first song
+        currentSongIndex = 0;
     } else if (currentSongIndex < 0) {
-        currentSongIndex = m_fileQueue.size() - 1;  // Loop to the last song
+        currentSongIndex = m_fileQueue.size() - 1;
     }
 
-    // Get the song at the updated index
     QString song = m_fileQueue.at(currentSongIndex);
 
-    // Set the new song for the player and start playing it
-    player->setCurrentSong(song);
-    progressBar->setValue(0);
-    playButton->setToPlaying();
-    player->play();
+    pendingRow = currentSongIndex;
+    pendingFilePath = song;
 
-    // Update the metadata and cover art for the new song
-    displayMetadata(currentSongIndex);
-    displayCoverArt(song);
+    progressBar->setAudioFile(song);
 }
 
 void AudioQueueTable::nextSong()

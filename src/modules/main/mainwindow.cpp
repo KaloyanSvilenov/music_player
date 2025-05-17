@@ -63,7 +63,9 @@ MainWindow::MainWindow(QWidget *parent)
     menu->addAction("File Names");
     menu->addAction("Album");
     menu->addAction("Artist");
-    menu->addAction("Song Name");
+    menu->addAction("Title");
+    menu->addAction("Genre");
+
     //menu->addAction("Year"); // Not supported yet
     ui->filterButton->setMenu(menu);
     connect(menu, &QMenu::triggered, ui->searchBox, &SearchBox::changeTextFromMenu);
