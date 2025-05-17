@@ -31,7 +31,7 @@ QTableView {
 QHeaderView::section {
     background-color: #44475A;
     color: #CCCCCC;
-    padding: 4px;
+    padding: 1px;
     border: 1px solid #D0CCD0;
 }
 
@@ -39,13 +39,13 @@ QHeaderView::section:vertical {
     background-color: #44475A;
     color: #CCCCCC;
     border: 1px solid #D0CCD0;
-    padding: 4px;
+    padding: 1px;
 }
 
 QHeaderView::section:horizontal {
     background-color: #44475A;
     color: #CCCCCC;
-    padding: 4px;
+    padding: 1px;
     border: none;
 }
 
@@ -93,13 +93,6 @@ QListView {
     gridline-color: none;
 }
 
-QHeaderView::section {
-    background-color: #44475A;
-    color: #CCCCCC;
-    padding: 4px;
-    border: none;
-}
-
 QSplitter {
     background-color: #44475A;
 }
@@ -111,7 +104,7 @@ QWidget {
 #tableWidget QHeaderView::section {
     background-color: #44475A;
     color: #CCCCCC;
-    padding: 7px;
+    padding: 4px;
     border-top: none;
     border-bottom: 1px solid #D0CCD0;
     border-right: 1px solid #D0CCD0;
