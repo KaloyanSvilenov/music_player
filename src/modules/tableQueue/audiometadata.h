@@ -7,6 +7,7 @@
 #include <QMediaMetaData>
 
 struct AudioMetadata {
+    QString filePath;
     QString title;
     QString artist;
     QString album;

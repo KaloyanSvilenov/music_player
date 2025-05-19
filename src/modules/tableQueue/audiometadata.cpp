@@ -13,6 +13,7 @@ AudioMetadata AudioMetadataReader::readMetadata(const QString &filePath)
     QFileInfo fi(filePath);
 
     // Default to filename if no title
+    meta.filePath = filePath;
     meta.title = fi.completeBaseName();
     meta.artist = "Unknown Artist";
     meta.album = "Unknown Album";

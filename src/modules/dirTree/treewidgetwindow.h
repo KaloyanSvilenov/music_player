@@ -48,6 +48,10 @@ private:
                        const QString &filter, const QString &searchText);
     AudioMetadataReader m_metadataReader;
     QCache<QString, AudioMetadata> m_metadataCache;
+    void buildGroupedView(const QString& title, const QMap<QString, QList<AudioMetadata>>& groupedItems);
+    void collectAllAudioFiles(QList<AudioMetadata>& results);
+    void collectMatchingFiles(const QString &filter, const QString &searchText, QList<AudioMetadata>& results);
+    void groupFiles(const QList<AudioMetadata>& files, const QString& groupBy, QMap<QString, QList<AudioMetadata>>& result);
 };
 
 #endif // TREEWIDGETWINDOW_H

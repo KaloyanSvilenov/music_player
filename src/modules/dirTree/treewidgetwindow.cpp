@@ -193,54 +193,6 @@ void TreeWidgetWindow::restoreState()
     }
 }
 
-// Update searchFiles to use the same grouping logic
-void TreeWidgetWindow::searchFiles(const QString &filter, const QString &searchText)
-{
-    if (m_lastOpenedDir.isEmpty()) return;
-
-    clearAllDirectories();
-
-    QTreeWidgetItem* rootItem = new QTreeWidgetItem(m_treeWidget);
-    rootItem->setText(0, "Search Results");
-    rootItem->setExpanded(true);
-
-    bool found = false;
-
-    // Recursive function to search directories
-    std::function<void(const QString&)> searchDir = [&](const QString &path) {
-        QDir dir(path);
-
-        // Search files
-        const QFileInfoList files = dir.entryInfoList(audioExtensions, QDir::Files);
-        for (const QFileInfo &fileInfo : files) {
-            if (matchesSearch(fileInfo, filter, searchText)) {
-                found = true;
-
-                // Create the item using the same logic as addAudioFilesToTree
-                QTreeWidgetItem *fileItem = new QTreeWidgetItem(rootItem);
-                fileItem->setText(0, fileInfo.fileName());
-                fileItem->setData(0, Qt::UserRole, fileInfo.absoluteFilePath()); // Store full path
-                fileItem->setIcon(0, m_treeWidget->style()->standardIcon(QStyle::SP_FileIcon));
-            }
-        }
-
-        // Search subdirectories
-        const QFileInfoList dirs = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
-        for (const QFileInfo &dirInfo : dirs) {
-            searchDir(dirInfo.absoluteFilePath());
-        }
-    };
-
-    searchDir(m_lastOpenedDir);
-
-    if (!found) {
-        delete rootItem;
-        QTreeWidgetItem* noResults = new QTreeWidgetItem(m_treeWidget);
-        noResults->setText(0, "No results found");
-        noResults->setFlags(noResults->flags() & ~Qt::ItemIsSelectable);
-    }
-}
-
 bool TreeWidgetWindow::matchesSearch(const QFileInfo &fileInfo,
                                      const QString &filter, const QString &searchText)
 {
@@ -273,6 +225,126 @@ bool TreeWidgetWindow::matchesSearch(const QFileInfo &fileInfo,
     }
 
     return false;
+}
+
+void TreeWidgetWindow::searchFiles(const QString &filter, const QString &searchText)
+{
+    if (m_lastOpenedDir.isEmpty()) return;
+
+    QList<AudioMetadata> matchingFiles;
+    collectMatchingFiles(filter, searchText, matchingFiles);
+
+    if (matchingFiles.isEmpty()) {
+        clearAllDirectories();
+        QTreeWidgetItem* noResults = new QTreeWidgetItem(m_treeWidget);
+        noResults->setText(0, "No results found");
+        noResults->setFlags(noResults->flags() & ~Qt::ItemIsSelectable);
+        return;
+    }
+
+    QMap<QString, QList<AudioMetadata>> groupedItems;
+    groupFiles(matchingFiles, filter, groupedItems);
+    buildGroupedView("Search Results", groupedItems);
+}
+
+void TreeWidgetWindow::buildGroupedView(const QString& title, const QMap<QString, QList<AudioMetadata>>& groupedItems)
+{
+    clearAllDirectories();
+
+    QTreeWidgetItem* rootItem = new QTreeWidgetItem(m_treeWidget);
+    rootItem->setText(0, title);
+    rootItem->setExpanded(true);
+
+    for (auto it = groupedItems.constBegin(); it != groupedItems.constEnd(); ++it) {
+        QTreeWidgetItem* groupItem = new QTreeWidgetItem(rootItem);
+        groupItem->setText(0, it.key());
+        groupItem->setIcon(0, m_treeWidget->style()->standardIcon(QStyle::SP_DirIcon));
+
+        // Sort items by title
+        QList<AudioMetadata> sortedItems = it.value();
+        std::sort(sortedItems.begin(), sortedItems.end(),
+                  [](const AudioMetadata &a, const AudioMetadata &b) {
+                      return a.title.compare(b.title, Qt::CaseInsensitive) < 0;
+                  });
+
+        // Add items to group
+        for (const AudioMetadata& meta : sortedItems) {
+            QTreeWidgetItem* item = new QTreeWidgetItem(groupItem);
+            item->setText(0, meta.title);
+            item->setData(0, Qt::UserRole, meta.filePath);
+            item->setIcon(0, m_treeWidget->style()->standardIcon(QStyle::SP_FileIcon));
+        }
+
+        groupItem->setExpanded(true);
+    }
+}
+
+void TreeWidgetWindow::groupFiles(const QList<AudioMetadata>& files, const QString& groupBy,
+                                  QMap<QString, QList<AudioMetadata>>& result)
+{
+    for (const AudioMetadata& meta : files) {
+        QString groupKey;
+        if (groupBy == "Artist") groupKey = meta.artist.isEmpty() ? "Unknown Artist" : meta.artist;
+        else if (groupBy == "Album") groupKey = meta.album.isEmpty() ? "Unknown Album" : meta.album;
+        else if (groupBy == "Genre") groupKey = meta.genre.isEmpty() ? "Unknown Genre" : meta.genre;
+        else groupKey = "Matching Files";
+
+        result[groupKey].append(meta);
+    }
+}
+
+void TreeWidgetWindow::collectAllAudioFiles(QList<AudioMetadata>& results)
+{
+    std::function<void(const QString&)> collector = [&](const QString &path) {
+        QDir dir(path);
+
+        // Process files
+        const QFileInfoList files = dir.entryInfoList(audioExtensions, QDir::Files);
+        for (const QFileInfo &fileInfo : files) {
+            AudioMetadata* meta = m_metadataCache.object(fileInfo.absoluteFilePath());
+            if (!meta) {
+                meta = new AudioMetadata(m_metadataReader.readMetadata(fileInfo.absoluteFilePath()));
+                m_metadataCache.insert(fileInfo.absoluteFilePath(), meta);
+            }
+            results.append(*meta);
+        }
+
+        // Process subdirectories
+        const QFileInfoList dirs = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+        for (const QFileInfo &dirInfo : dirs) {
+            collector(dirInfo.absoluteFilePath());
+        }
+    };
+
+    collector(m_lastOpenedDir);
+}
+
+void TreeWidgetWindow::collectMatchingFiles(const QString &filter, const QString &searchText,
+                                            QList<AudioMetadata>& results)
+{
+    std::function<void(const QString&)> collector = [&](const QString &path) {
+        QDir dir(path);
+
+        const QFileInfoList files = dir.entryInfoList(audioExtensions, QDir::Files);
+        for (const QFileInfo &fileInfo : files) {
+            AudioMetadata* meta = m_metadataCache.object(fileInfo.absoluteFilePath());
+            if (!meta) {
+                meta = new AudioMetadata(m_metadataReader.readMetadata(fileInfo.absoluteFilePath()));
+                m_metadataCache.insert(fileInfo.absoluteFilePath(), meta);
+            }
+
+            if (matchesSearch(fileInfo, filter, searchText)) {
+                results.append(*meta);
+            }
+        }
+
+        const QFileInfoList dirs = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+        for (const QFileInfo &dirInfo : dirs) {
+            collector(dirInfo.absoluteFilePath());
+        }
+    };
+
+    collector(m_lastOpenedDir);
 }
 
 
