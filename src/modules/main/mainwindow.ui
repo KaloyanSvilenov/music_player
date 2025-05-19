@@ -24,18 +24,103 @@
     </sizepolicy>
    </property>
    <layout class="QGridLayout" name="gridLayout_4">
-    <item row="2" column="1">
-     <widget class="PlayButton" name="pausePlay">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>46</height>
-       </size>
-      </property>
+    <item row="3" column="2">
+     <widget class="HoverButton" name="shuffleButton">
       <property name="maximumSize">
        <size>
-        <width>50</width>
-        <height>45</height>
+        <width>30</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0">
+     <widget class="LoopButton" name="loopButton">
+      <property name="maximumSize">
+       <size>
+        <width>30</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="4">
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="3" column="1">
+       <widget class="QSlider" name="volumeSlider">
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>150</width>
+          <height>1555555</height>
+         </size>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="HoverButton" name="volumeIcon">
+        <property name="maximumSize">
+         <size>
+          <width>25</width>
+          <height>50</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="totalTime">
+        <property name="maximumSize">
+         <size>
+          <width>75</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>/ 0.00</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="currentTime">
+        <property name="maximumSize">
+         <size>
+          <width>75</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>0.00</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="2" column="0">
+     <widget class="HoverButton" name="backButton">
+      <property name="maximumSize">
+       <size>
+        <width>30</width>
+        <height>30</height>
        </size>
       </property>
       <property name="text">
@@ -302,99 +387,18 @@
       </widget>
      </widget>
     </item>
-    <item row="2" column="3" rowspan="2">
-     <widget class="WaveformProgressBar" name="progressBar">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
+    <item row="2" column="1">
+     <widget class="PlayButton" name="pausePlay">
       <property name="minimumSize">
        <size>
-        <width>1000</width>
-        <height>0</height>
+        <width>0</width>
+        <height>46</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>16777215</width>
-        <height>50</height>
-       </size>
-      </property>
-      <property name="value">
-       <number>24</number>
-      </property>
-      <property name="format">
-       <string/>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="4">
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="1" column="0" colspan="2">
-       <widget class="QSlider" name="volumeSlider">
-        <property name="maximumSize">
-         <size>
-          <width>150</width>
-          <height>1555555</height>
-         </size>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Orientation::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLabel" name="totalTime">
-        <property name="maximumSize">
-         <size>
-          <width>75</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>/ 0.00</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="currentTime">
-        <property name="maximumSize">
-         <size>
-          <width>75</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>0.00</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item row="3" column="2">
-     <widget class="HoverButton" name="shuffleButton">
-      <property name="maximumSize">
-       <size>
-        <width>30</width>
-        <height>30</height>
-       </size>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="0">
-     <widget class="LoopButton" name="loopButton">
-      <property name="maximumSize">
-       <size>
-        <width>30</width>
-        <height>30</height>
+        <width>50</width>
+        <height>45</height>
        </size>
       </property>
       <property name="text">
@@ -421,15 +425,30 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="0">
-     <widget class="HoverButton" name="backButton">
-      <property name="maximumSize">
+    <item row="2" column="3" rowspan="2">
+     <widget class="WaveformProgressBar" name="progressBar">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
        <size>
-        <width>30</width>
-        <height>30</height>
+        <width>1000</width>
+        <height>0</height>
        </size>
       </property>
-      <property name="text">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="value">
+       <number>24</number>
+      </property>
+      <property name="format">
        <string/>
       </property>
      </widget>

@@ -57,6 +57,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pausePlay->setHoverPlayIcon(":/icons/play_hover.png");
     ui->pausePlay->setDefaultPauseIcon(":/icons/pause.png");
     ui->pausePlay->setHoverPauseIcon(":/icons/pause_hover.png");
+    ui->volumeIcon->setDefaultIcon(":/icons/volume.png");
+    ui->volumeIcon->setHoverIcon(":/icons/volume.png");
 
     //Filter Button dropdown Menu
     QMenu *menu = new QMenu(this);\
