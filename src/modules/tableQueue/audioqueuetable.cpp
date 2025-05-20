@@ -80,6 +80,7 @@ void AudioQueueTable::handleItemDoubleClick(QTableWidgetItem* item)
     progressBar->setAudioFile(filePath);
 
     // Directly play the song without waiting for waveform
+    pendingFilePath = filePath;
     player->setCurrentSong(filePath);
     player->play();
     playButton->setToPlaying();
@@ -418,6 +419,7 @@ void AudioQueueTable::playSongAtIndex(int indexChange)
     progressBar->setAudioFile(song);
 
     // Directly play without waveform dependency
+    pendingFilePath = song;
     player->setCurrentSong(song);
     player->play();
     playButton->setToPlaying();
